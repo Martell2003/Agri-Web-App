@@ -1,0 +1,25 @@
+{% extends 'admin/master.html' %}
+{% block admin_content %}
+    <h1>Upload CSV File</h1>
+    <p>Upload a CSV file to bulk import price data. The CSV should contain the following columns:</p>
+    <ul>
+        <li><code>product_name</code>: The name of the product (must match an existing product in the database)</li>
+        <li><code>market_name</code>: The name of the market (must match an existing market in the database)</li>
+        <li><code>price</code>: The price value (e.g., 100.50)</li>
+        <li><code>timestamp</code>: The date of the price (e.g., 2025-04-15)</li>
+    </ul>
+    <p><strong>Example CSV:</strong></p>
+    <pre>
+product_name,market_name,price,timestamp
+Maize,Nairobi Market,50.00,2025-04-15
+Rice,Mombasa Market,75.00,2025-04-15
+    </pre>
+
+    <form method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="csv_file">Select CSV File:</label>
+            <input type="file" class="form-control-file" id="csv_file" name="csv_file" accept=".csv" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Upload</button>
+    </form>
+{% endblock %}

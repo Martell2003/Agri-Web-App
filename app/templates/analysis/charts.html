@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Agricultural Price Charts</h1>
+
+<h2>Matplotlib Chart</h2>
+{% if matplotlib_chart %}
+<div id="matplotlib-chart">
+    <img src="data:image/png;base64,{{ matplotlib_chart }}" alt="Matplotlib Chart">
+</div>
+{% else %}
+    <p>No data available for Matplotlib chart.</p>
+{% endif %}
+
+<h2>Plotly Chart</h2>
+{% if plotly_chart %}
+    <div id="plotly-chart">{{ plotly_chart|safe }}</div>
+{% else %}
+    <p>No data available for Plotly chart.</p>
+{% endif %}
+{% endblock %}
+
+<select id="product-filter">
+    <option value="all">All Products</option>
+    <option value="maize">Maize</option>
+    <option value="wheat">Wheat</option>
+    <option value="beans">Beans</option>
+</select>

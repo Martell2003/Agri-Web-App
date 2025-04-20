@@ -1,0 +1,70 @@
+{% extends 'admin/master.html' %}
+{% block admin_content %}
+  <h1>AgriPriceTracker Admin Dashboard</h1>
+  <div class="row">
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Regions</h5>
+          <p class="card-text">{{ region_count }}</p>
+          <a href="{{ url_for('region.index_view') }}" class="btn btn-primary">Manage Regions</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Markets</h5>
+          <p class="card-text">{{ market_count }}</p>
+          <a href="{{ url_for('market.index_view') }}" class="btn btn-primary">Manage Markets</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Products</h5>
+          <p class="card-text">{{ product_count }}</p>
+          <a href="{{ url_for('product.index_view') }}" class="btn btn-primary">Manage Products</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Prices</h5>
+          <p class="card-text">{{ price_count }}</p>
+          <a href="{{ url_for('price.index_view') }}" class="btn btn-primary">Manage Prices</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <h2 class="mt-4">Recent Prices</h2>
+  {% if recent_prices %}
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Market</th>
+          <th>Price</th>
+          <th>Timestamp</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for price in recent_prices %}
+          <tr>
+            <td>{{ price.product.name }}</td>
+            <td>{{ price.market.name }}</td>
+            <td>{{ price.price }}</td>
+            <td>{{ price.timestamp }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No prices available.</p>
+  {% endif %}
+  <div class="mt-3">
+    <a href="{{ url_for('upload_csv.index') }}" class="btn btn-secondary">Upload Price CSV</a>
+  </div>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Predict Price{% endblock %}
+{% block content %}
+
+<div class="container mt-5">
+    <h1>Predict Future Price</h1>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Prediction Form -->
+    <form method="POST" action="{{ url_for('analysis.predict_price') }}">
+        <div class="mb-3">
+            <label for="product_id" class="form-label">Select Product</label>
+            <select name="product_id" id="product_id" class="form-select" required>
+                <option value="">-- Select a Product --</option>
+                {% for product in products %}
+                    <option value="{{ product.id }}">{{ product.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="market_id" class="form-label">Select Market</label>
+            <select name="market_id" id="market_id" class="form-select" required>
+                <option value="">-- Select a Market --</option>
+                {% for market in markets %}
+                    <option value="{{ market.id }}">{{ market.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="days_ahead" class="form-label">Days Ahead (default is 7)</label>
+            <input type="number" name="days_ahead" id="days_ahead" class="form-control" value="7" min="1" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Predict Price</button>
+    </form>
+
+    <!-- Prediction Result -->
+    {% if result %}
+        <div class="mt-4">
+            <h2>Prediction Result</h2>
+            <p><strong>Product:</strong> {{ result.product_name }}</p>
+            <p><strong>Market:</strong> {{ result.market_name }}</p>
+            <p><strong>Prediction Date:</strong> {{ result.prediction_date }}</p>
+            <p><strong>Predicted Price:</strong> {{ result.predicted_price }} (in your currency)</p>
+            <p><small>Predicted {{ result.days_ahead }} days from the last recorded price.</small></p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

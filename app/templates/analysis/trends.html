@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Price Trends{% endblock %}
+{% block content %}
+    <h1 class="mb-4">Price Trends</h1>
+
+    <!-- Filter Form -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Filter Trends</h5>
+            <form method="GET" action="{{ url_for('analysis.trends') }}">
+                <div class="row">
+                    <!-- Product Filter -->
+                    <div class="col-md-3 mb-3">
+                        <label for="product" class="form-label">Product</label>
+                        <select name="product" id="product" class="form-select">
+                            <option value="all" {% if not product_filter or product_filter == "all" %}selected{% endif %}>All Products</option>
+                            {% for product in products %}
+                                <option value="{{ product.name }}" {% if product_filter == product.name %}selected{% endif %}>{{ product.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Market Filter -->
+                    <div class="col-md-3 mb-3">
+                        <label for="market" class="form-label">Market</label>
+                        <select name="market" id="market" class="form-select">
+                            <option value="all" {% if not market_filter or market_filter == "all" %}selected{% endif %}>All Markets</option>
+                            {% for market in markets %}
+                                <option value="{{ market.name }}" {% if market_filter == market.name %}selected{% endif %}>{{ market.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Date Range Filter -->
+                    <div class="col-md-2 mb-3">
+                        <label for="start_date" class="form-label">Start Date</label>
+                        <input type="date" name="start_date" id="start_date" class="form-control" value="{{ start_date or '' }}">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="end_date" class="form-label">End Date</label>
+                        <input type="date" name="end_date" id="end_date" class="form-control" value="{{ end_date or '' }}">
+                    </div>
+
+                    <!-- Search Bar -->
+                    <div class="col-md-2 mb-3">
+                        <label for="search" class="form-label">Search Product</label>
+                        <input type="text" name="search" id="search" class="form-control" placeholder="e.g., Wheat" value="{{ search_query or '' }}">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Apply Filters</button>
+                <a href="{{ url_for('analysis.trends') }}" class="btn btn-secondary">Clear Filters</a>
+            </form>
+        </div>
+    </div>
+
+    <!-- Price Trends Chart -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Price Over Time</h5>
+            {% if graphJSON and prices %}
+                <div id="trends-chart" style="width: 100%; height: 400px;"></div>
+                <script>
+                    var graph = JSON.parse('{{ graphJSON | tojson | safe }}');
+                    Plotly.newPlot('trends-chart', graph.data, graph.layout);
+                </script>
+            {% else %}
+                <p>Interactive price trends chart will appear here once data is available.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recent Prices Table -->
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Recent Prices</h5>
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Product</th>
+                        <th>Market</th>
+                        <th>Price (KES)</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if prices %}
+                        {% for price in prices %}
+                        <tr>
+                            <td>{{ price.product.name }}</td>
+                            <td>{{ price.market.name }}</td>
+                            <td>{{ price.price }}</td>
+                            <td>{{ price.timestamp }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center">No recent prices available.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

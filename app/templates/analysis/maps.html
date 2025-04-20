@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Market Map{% endblock %}
+{% block content %}
+    <h1 class="mb-4">Market Map</h1>
+
+    <!-- Filter Form -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Filter Map</h5>
+            <form method="GET" action="{{ url_for('analysis.map_view') }}"> <!-- Or 'analysis.maps' if not renamed -->
+                <div class="row">
+                    <!-- Product Filter -->
+                    <div class="col-md-3 mb-3">
+                        <label for="product" class="form-label">Product</label>
+                        <select name="product" id="product" class="form-select">
+                            <option value="all" {% if not product_filter or product_filter == "all" %}selected{% endif %}>All Products</option>
+                            {% for product in products %}
+                                <option value="{{ product.name }}" {% if product_filter == product.name %}selected{% endif %}>{{ product.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Market Filter -->
+                    <div class="col-md-3 mb-3">
+                        <label for="market" class="form-label">Market</label>
+                        <select name="market" id="market" class="form-select">
+                            <option value="all" {% if not market_filter or market_filter == "all" %}selected{% endif %}>All Markets</option>
+                            {% for market in markets %}
+                                <option value="{{ market.name }}" {% if market_filter == market.name %}selected{% endif %}>{{ market.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Date Range Filter -->
+                    <div class="col-md-2 mb-3">
+                        <label for="start_date" class="form-label">Start Date</label>
+                        <input type="date" name="start_date" id="start_date" class="form-control" value="{{ start_date or '' }}">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="end_date" class="form-label">End Date</label>
+                        <input type="date" name="end_date" id="end_date" class="form-control" value="{{ end_date or '' }}">
+                    </div>
+
+                    <!-- Search Bar -->
+                    <div class="col-md-2 mb-3">
+                        <label for="search" class="form-label">Search Product</label>
+                        <input type="text" name="search" id="search" class="form-control" placeholder="e.g., Wheat" value="{{ search_query or '' }}">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Apply Filters</button>
+                <a href="{{ url_for('analysis.map_view') }}" class="btn btn-secondary">Clear Filters</a> <!-- Or 'analysis.maps' -->
+            </form>
+        </div>
+    </div>
+
+    <!-- Map -->
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Market Locations</h5>
+            {% if map_html %}
+                {{ map_html | safe }}
+            {% else %}
+                <p>No markets to display. Please ensure markets have coordinates and prices.</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Average Prices</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Average Price</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for price in avg_prices %}
+        <tr>
+            <td>{{ price.product }}</td>
+            <td>{{ price.average_price }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
