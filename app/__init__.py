@@ -10,7 +10,9 @@ from flask_admin.contrib.sqla import ModelView
 from flask_admin import Admin, BaseView, expose
 import csv
 from io import StringIO
-from wtforms import SelectField, validators
+from wtforms import BooleanField, SelectField, PasswordField, StringField, validators
+from flask_wtf import FlaskForm
+from werkzeug.security import generate_password_hash
 import logging
 from app.extensions import db
 
@@ -42,6 +44,111 @@ class AdminModelView(ModelView):
         logger.debug("AdminModelView inaccessible, redirecting to login")
         return redirect(url_for('auth.login'))
 
+# Custom Form for UserModelView
+class UserAdminForm(FlaskForm):
+    username = StringField('Username', validators=[validators.DataRequired()])
+    email = StringField('Email', validators=[validators.DataRequired(), validators.Email()])
+    password = PasswordField('Password')
+    is_admin = BooleanField('Is Admin', validators=[validators.DataRequired()])
+
+# Custom Product Admin View
+class ProductModelView(AdminModelView):
+    column_list = ['id', 'name']
+    form_columns = ['name']
+    column_filters = ['name']
+    column_searchable_list = ['name']
+    form_args = {
+        'name': {
+            'label': 'Name',
+            'validators': [validators.DataRequired()],
+            'description': 'Enter the product name (e.g., Maize).'
+        }
+    }
+
+# Custom User Admin View
+class UserModelView(AdminModelView):
+    column_list = ['id', 'username', 'email', 'is_admin']
+    form_columns = ['username', 'email', 'is_admin']
+    column_filters = ['username', 'email']
+    column_searchable_list = ['username', 'email']
+    form_base_class = FlaskForm
+    form = UserAdminForm
+    
+    def on_model_change(self, form, model, is_created):
+        if is_created and not form.password.data:
+            raise ValueError('Password is required for new users.')
+        if form.password.data:
+            model.password_hash = generate_password_hash(form.password.data)
+    
+    def create_form(self):
+        form = super(UserModelView, self).create_form()
+        form.password.validators = [validators.DataRequired()]
+        return form
+    
+    def edit_form(self):
+        form = super(UserModelView, self).edit_form()
+        form.password.validators = [validators.Optional()]
+        return form
+
+# Custom Price Admin View
+class PriceModelView(AdminModelView):
+    column_list = ['id', 'product', 'market', 'price', 'timestamp']
+    form_columns = ['product_id', 'market_id', 'price', 'timestamp']
+    column_filters = ['price', 'timestamp']
+    column_searchable_list = ['price']
+    form_args = {
+        'product_id': {
+            'label': 'Product',
+            'validators': [validators.DataRequired()],
+            'description': 'Select the product.'
+        },
+        'market_id': {
+            'label': 'Market',
+            'validators': [validators.DataRequired()],
+            'description': 'Select the market.'
+        },
+        'price': {
+            'validators': [validators.DataRequired(), validators.NumberRange(min=0, message="Price must be non-negative")],
+            'description': 'Enter the price (e.g., 50.0).'
+        },
+        'timestamp': {
+            'validators': [validators.DataRequired()],
+            'description': 'Enter the date (e.g., 2025-04-21).'
+        }
+    }
+    
+    def scaffold_form(self):
+        form_class = super(PriceModelView, self).scaffold_form()
+        from app.models.product import Product
+        from app.models.market import Market
+        form_class.product_id = SelectField('Product', coerce=int, validators=[validators.DataRequired()])
+        form_class.market_id = SelectField('Market', coerce=int, validators=[validators.DataRequired()])
+        return form_class
+    
+    def create_form(self):
+        from app.models.product import Product
+        from app.models.market import Market
+        form = super(PriceModelView, self).create_form()
+        form.product_id.choices = [(p.id, p.name) for p in Product.query.all()]
+        form.market_id.choices = [(m.id, m.name) for m in Product.query.all()]
+        return form
+    
+    def edit_form(self):
+        from app.models.product import Product
+        from app.models.market import Market
+        form = super(PriceModelView, self).edit_form()
+        form.product_id.choices = [(p.id, p.name) for p in Product.query.all()]
+        form.market_id.choices = [(m.id, m.name) for m in Market.query.all()]
+        return form
+    
+    def on_model_change(self, form, model, is_created):
+        from app.models.product import Product
+        from app.models.market import Market
+        if not Product.query.get(form.product_id.data):
+            raise ValueError('Invalid product selected.')
+        if not Market.query.get(form.market_id.data):
+            raise ValueError('Invalid market selected.')
+
 # Custom Market Admin View
 class MarketModelView(ModelView):
     def is_accessible(self):
@@ -52,7 +159,6 @@ class MarketModelView(ModelView):
         logger.debug("MarketModelView inaccessible, redirecting to login")
         return redirect(url_for('auth.login'))
 
-    # Customize the form
     form_args = {
         'name': {
             'label': 'Name',
@@ -74,17 +180,14 @@ class MarketModelView(ModelView):
         }
     }
 
-    # Specify which fields to show in the form and table
     form_columns = ['name', 'region_id', 'latitude', 'longitude']
     column_list = ['name', 'region', 'latitude', 'longitude']
 
-    # Customize the region_id field’s choices
     def scaffold_form(self):
         form_class = super(MarketModelView, self).scaffold_form()
         form_class.region_id = SelectField('Region', coerce=int, validators=[validators.DataRequired()])
         return form_class
 
-    # Set choices during form creation
     def create_form(self):
         from app.models.region import Region
         form = super(MarketModelView, self).create_form()
@@ -122,11 +225,9 @@ class CSVUploadView(BaseView):
 
             if file and file.filename.endswith('.csv'):
                 try:
-                    # Read the CSV file
                     stream = StringIO(file.stream.read().decode('utf-8'), newline=None)
                     csv_reader = csv.DictReader(stream)
 
-                    # Validate required columns
                     required_columns = ['product_name', 'market_name', 'price', 'timestamp']
                     if not all(col in csv_reader.fieldnames for col in required_columns):
                         flash(f'CSV file must contain the following columns: {", ".join(required_columns)}', 'danger')
@@ -136,29 +237,24 @@ class CSVUploadView(BaseView):
                     from app.models.market import Market
                     from app.models.price import Price
 
-                    # Process each row
                     for row in csv_reader:
-                        # Find the product
                         product = Product.query.filter_by(name=row['product_name']).first()
                         if not product:
                             flash(f"Product '{row['product_name']}' not found in the database.", 'danger')
                             continue
 
-                        # Find the market
                         market = Market.query.filter_by(name=row['market_name']).first()
                         if not market:
                             flash(f"Market '{row['market_name']}' not found in the database.", 'danger')
                             continue
 
-                        # Validate price and timestamp
                         try:
                             price_value = float(row['price'])
-                            timestamp = datetime.strptime(row['timestamp'], '%Y-%m-%d')  # Fixed: Parse timestamp as datetime
+                            timestamp = datetime.strptime(row['timestamp'], '%Y-%m-%d')
                         except ValueError:
                             flash(f"Invalid price or timestamp in row: {row}", 'danger')
                             continue
 
-                        # Create a new Price entry
                         new_price = Price(
                             product_id=product.id,
                             market_id=market.id,
@@ -167,7 +263,6 @@ class CSVUploadView(BaseView):
                         )
                         db.session.add(new_price)
 
-                    # Commit the changes
                     db.session.commit()
                     flash('CSV file successfully uploaded and data imported!', 'success')
                 except Exception as e:
@@ -216,9 +311,9 @@ def create_app():
 
     admin.add_view(AdminModelView(Region, db.session, name='Region', endpoint='region'))
     admin.add_view(MarketModelView(Market, db.session, name='Market', endpoint='market'))
-    admin.add_view(AdminModelView(Product, db.session, name='Product', endpoint='product'))
-    admin.add_view(AdminModelView(Price, db.session, name='Price', endpoint='price'))
-    admin.add_view(AdminModelView(User, db.session, name='User', endpoint='user'))
+    admin.add_view(ProductModelView(Product, db.session, name='Product', endpoint='product'))
+    admin.add_view(PriceModelView(Price, db.session, name='Price', endpoint='price'))
+    admin.add_view(UserModelView(User, db.session, name='User', endpoint='user'))
     admin.add_view(CSVUploadView(name='Upload CSV', endpoint='upload_csv'))
 
     return app
