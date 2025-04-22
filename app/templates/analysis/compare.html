@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Compare Prices{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Compare Prices</h2>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <form method="POST" class="mb-4">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="product_id" class="form-label">Product</label>
+                <select class="form-select" id="product_id" name="product_id" required>
+                    <option value="">Select a product</option>
+                    {% for product in products %}
+                        <option value="{{ product.id }}">{{ product.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="market_ids" class="form-label">Markets (select multiple)</label>
+                <select class="form-select" id="market_ids" name="market_ids" multiple required>
+                    {% for market in markets %}
+                        <option value="{{ market.id }}">{{ market.name }}</option>
+                    {% endfor %}
+                </select>
+                <small class="form-text text-muted">Hold Ctrl (Windows) or Cmd (Mac) to select multiple markets.</small>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="start_date" class="form-label">Start Date</label>
+                <input type="date" class="form-control" id="start_date" name="start_date" value="{{ default_start }}" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="end_date" class="form-label">End Date</label>
+                <input type="date" class="form-control" id="end_date" name="end_date" value="{{ default_end }}" required>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Compare</button>
+    </form>
+    
+    {% if table_data %}
+        <h3 class="mt-5">Price Comparison for {{ product_name }}</h3>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Market</th>
+                        <th>Price (KES)</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in table_data %}
+                        <tr>
+                            <td>{{ row.market }}</td>
+                            <td>{{ row.price }}</td>
+                            <td>{{ row.timestamp }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="mt-4">
+            <div id="compare-chart"></div>
+            <script>
+                // Render Plotly chart if data is available
+                (function() {
+                    var graphData = JSON.parse('{{ graphJSON | tojson | safe }}');
+                    if (graphData && typeof graphData === 'object' && graphData.data && graphData.layout) {
+                        Plotly.newPlot('compare-chart', graphData.data, graphData.layout);
+                    } else {
+                        console.warn('No valid graphJSON data provided for Plotly chart');
+                    }
+                })();
+            </script>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -4297,3 +4297,96 @@ AttributeError: 'tuple' object has no attribute 'items'
 2025-04-21 10:53:01,644 INFO werkzeug: 127.0.0.1 - - [21/Apr/2025 10:53:01] "GET /predict HTTP/1.1" 200 -
 2025-04-21 10:53:01,663 INFO werkzeug: 127.0.0.1 - - [21/Apr/2025 10:53:01] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
 2025-04-21 10:53:01,668 INFO werkzeug: 127.0.0.1 - - [21/Apr/2025 10:53:01] "[36mGET /static/img/logo.png HTTP/1.1[0m" 304 -
+2025-04-22 10:36:01,463 DEBUG matplotlib: matplotlib data path: C:\Users\Simon Adeya\Desktop\agri_price_tracker\venv\Lib\site-packages\matplotlib\mpl-data
+2025-04-22 10:36:01,514 DEBUG matplotlib: CONFIGDIR=C:\Users\Simon Adeya\.matplotlib
+2025-04-22 10:36:01,518 DEBUG matplotlib: interactive is False
+2025-04-22 10:36:01,519 DEBUG matplotlib: platform is win32
+2025-04-22 10:36:01,833 DEBUG matplotlib: CACHEDIR=C:\Users\Simon Adeya\.matplotlib
+2025-04-22 10:36:01,869 DEBUG matplotlib.font_manager: Using fontManager instance from C:\Users\Simon Adeya\.matplotlib\fontlist-v390.json
+2025-04-22 10:36:17,171 INFO werkzeug: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-04-22 10:36:17,173 INFO werkzeug: [33mPress CTRL+C to quit[0m
+2025-04-22 10:36:24,062 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 10:36:24] "GET / HTTP/1.1" 200 -
+2025-04-22 10:36:25,223 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 10:36:25] "[33mGET /static/images/logo.png HTTP/1.1[0m" 404 -
+2025-04-22 10:36:25,402 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 10:36:25] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-04-22 10:36:25,470 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 10:36:25] "[36mGET /static/img/logo.png HTTP/1.1[0m" 304 -
+2025-04-22 10:36:25,827 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 10:36:25] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-04-22 10:36:36,454 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 10:36:36] "GET /login HTTP/1.1" 200 -
+2025-04-22 10:36:36,493 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 10:36:36] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-04-22 10:36:36,526 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 10:36:36] "[36mGET /static/img/logo.png HTTP/1.1[0m" 304 -
+2025-04-22 10:37:10,288 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 10:37:10] "GET / HTTP/1.1" 200 -
+2025-04-22 10:37:10,391 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 10:37:10] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-04-22 10:37:10,416 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 10:37:10] "[36mGET /static/img/logo.png HTTP/1.1[0m" 304 -
+2025-04-22 10:37:10,419 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 10:37:10] "[33mGET /static/images/logo.png HTTP/1.1[0m" 404 -
+2025-04-22 10:37:31,037 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 10:37:31] "GET / HTTP/1.1" 200 -
+2025-04-22 10:37:31,184 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 10:37:31] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-04-22 10:37:31,194 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 10:37:31] "[36mGET /static/img/logo.png HTTP/1.1[0m" 304 -
+2025-04-22 10:37:31,195 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 10:37:31] "[33mGET /static/images/logo.png HTTP/1.1[0m" 404 -
+2025-04-22 10:37:35,412 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 10:37:35] "[32mGET /trends HTTP/1.1[0m" 302 -
+2025-04-22 10:37:35,480 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 10:37:35] "GET /login?next=/trends HTTP/1.1" 200 -
+2025-04-22 10:37:35,559 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 10:37:35] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-04-22 10:37:35,643 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 10:37:35] "[36mGET /static/img/logo.png HTTP/1.1[0m" 304 -
+2025-04-22 11:34:48,807 DEBUG matplotlib: matplotlib data path: C:\Users\Simon Adeya\Desktop\agri_price_tracker\venv\Lib\site-packages\matplotlib\mpl-data
+2025-04-22 11:34:48,815 DEBUG matplotlib: CONFIGDIR=C:\Users\Simon Adeya\.matplotlib
+2025-04-22 11:34:48,820 DEBUG matplotlib: interactive is False
+2025-04-22 11:34:48,820 DEBUG matplotlib: platform is win32
+2025-04-22 11:34:48,934 DEBUG matplotlib: CACHEDIR=C:\Users\Simon Adeya\.matplotlib
+2025-04-22 11:34:48,939 DEBUG matplotlib.font_manager: Using fontManager instance from C:\Users\Simon Adeya\.matplotlib\fontlist-v390.json
+2025-04-22 11:34:52,148 INFO werkzeug: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-04-22 11:34:52,149 INFO werkzeug: [33mPress CTRL+C to quit[0m
+2025-04-22 11:34:55,627 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:34:55] "GET / HTTP/1.1" 200 -
+2025-04-22 11:34:55,864 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:34:55] "[33mGET /static/images/logo.png HTTP/1.1[0m" 404 -
+2025-04-22 11:34:55,983 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:34:55] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-04-22 11:34:56,023 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:34:56] "[36mGET /static/img/logo.png HTTP/1.1[0m" 304 -
+2025-04-22 11:35:02,990 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:35:02] "[32mGET /compare HTTP/1.1[0m" 302 -
+2025-04-22 11:35:03,015 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:35:03] "GET /login?next=/compare HTTP/1.1" 200 -
+2025-04-22 11:35:03,061 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:35:03] "[36mGET /static/img/logo.png HTTP/1.1[0m" 304 -
+2025-04-22 11:35:03,063 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:35:03] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-04-22 11:35:05,610 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:35:05] "[32mPOST /login?next=/compare HTTP/1.1[0m" 302 -
+2025-04-22 11:35:05,621 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:35:05] "GET / HTTP/1.1" 200 -
+2025-04-22 11:35:05,668 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:35:05] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-04-22 11:35:05,671 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:35:05] "[36mGET /static/img/logo.png HTTP/1.1[0m" 304 -
+2025-04-22 11:35:05,672 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:35:05] "[33mGET /static/images/logo.png HTTP/1.1[0m" 404 -
+2025-04-22 11:35:10,935 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:35:10] "GET /compare HTTP/1.1" 200 -
+2025-04-22 11:35:10,951 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:35:10] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-04-22 11:35:10,976 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:35:10] "[36mGET /static/img/logo.png HTTP/1.1[0m" 304 -
+2025-04-22 11:36:07,033 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:36:07] "POST /compare HTTP/1.1" 200 -
+2025-04-22 11:36:07,048 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:36:07] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-04-22 11:36:07,077 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:36:07] "[36mGET /static/img/logo.png HTTP/1.1[0m" 304 -
+2025-04-22 11:38:29,476 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:38:29] "GET /compare HTTP/1.1" 200 -
+2025-04-22 11:38:37,233 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:38:37] "GET /compare HTTP/1.1" 200 -
+2025-04-22 11:38:37,257 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:38:37] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-04-22 11:38:37,262 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:38:37] "[36mGET /static/img/logo.png HTTP/1.1[0m" 304 -
+2025-04-22 11:38:55,386 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:38:55] "POST /compare HTTP/1.1" 200 -
+2025-04-22 11:38:55,406 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:38:55] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-04-22 11:38:55,411 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:38:55] "[36mGET /static/img/logo.png HTTP/1.1[0m" 304 -
+2025-04-22 11:39:12,072 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:39:12] "GET /compare HTTP/1.1" 200 -
+2025-04-22 11:39:14,180 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:39:14] "GET / HTTP/1.1" 200 -
+2025-04-22 11:39:14,202 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:39:14] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-04-22 11:39:14,229 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:39:14] "[33mGET /static/images/logo.png HTTP/1.1[0m" 404 -
+2025-04-22 11:39:14,231 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:39:14] "[36mGET /static/img/logo.png HTTP/1.1[0m" 304 -
+2025-04-22 11:39:16,328 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:39:16] "GET /trends HTTP/1.1" 200 -
+2025-04-22 11:39:16,345 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:39:16] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-04-22 11:39:16,363 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:39:16] "[36mGET /static/img/logo.png HTTP/1.1[0m" 304 -
+2025-04-22 11:39:21,281 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:39:21] "GET /maps HTTP/1.1" 200 -
+2025-04-22 11:39:21,298 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:39:21] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-04-22 11:39:21,317 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:39:21] "[36mGET /static/img/logo.png HTTP/1.1[0m" 304 -
+2025-04-22 11:39:24,113 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:39:24] "GET /stats HTTP/1.1" 200 -
+2025-04-22 11:39:24,129 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:39:24] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-04-22 11:39:24,142 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:39:24] "[36mGET /static/img/logo.png HTTP/1.1[0m" 304 -
+2025-04-22 11:39:28,474 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:39:28] "GET /scrape HTTP/1.1" 200 -
+2025-04-22 11:39:28,496 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:39:28] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-04-22 11:39:28,528 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:39:28] "[36mGET /static/img/logo.png HTTP/1.1[0m" 304 -
+2025-04-22 11:39:30,310 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:39:30] "GET /predict HTTP/1.1" 200 -
+2025-04-22 11:39:30,326 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:39:30] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-04-22 11:39:30,354 INFO werkzeug: 127.0.0.1 - - [22/Apr/2025 11:39:30] "[36mGET /static/img/logo.png HTTP/1.1[0m" 304 -
+2025-04-22 11:40:24,138 DEBUG matplotlib: matplotlib data path: C:\Users\Simon Adeya\Desktop\agri_price_tracker\venv\Lib\site-packages\matplotlib\mpl-data
+2025-04-22 11:40:24,146 DEBUG matplotlib: CONFIGDIR=C:\Users\Simon Adeya\.matplotlib
+2025-04-22 11:40:24,149 DEBUG matplotlib: interactive is False
+2025-04-22 11:40:24,149 DEBUG matplotlib: platform is win32
+2025-04-22 11:40:24,248 DEBUG matplotlib: CACHEDIR=C:\Users\Simon Adeya\.matplotlib
+2025-04-22 11:40:24,253 DEBUG matplotlib.font_manager: Using fontManager instance from C:\Users\Simon Adeya\.matplotlib\fontlist-v390.json
+2025-04-22 11:40:26,505 INFO werkzeug: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-04-22 11:40:26,506 INFO werkzeug: [33mPress CTRL+C to quit[0m

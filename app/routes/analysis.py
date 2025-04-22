@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, flash
+from sqlalchemy import and_
 from ..models import Price, Market
 from ..analysis.charts import generate_matplotlib_chart, generate_plotly_chart
 from ..analysis.stats import calculate_average_prices, calculate_price_variance
@@ -300,3 +301,105 @@ def predict_price():
         return render_template('analysis/predict.html', products=products, markets=markets, result=result)
 
     return render_template('analysis/predict.html', products=products, markets=markets)
+
+@analysis_bp.route('/compare', methods=['GET', 'POST'])
+@login_required
+def compare():
+    products = Product.query.all()
+    markets = Market.query.all()
+    
+    # Default graphJSON for GET requests (empty Plotly figure)
+    default_graphJSON = json.dumps({"data": [], "layout": {}}, cls=plotly.utils.PlotlyJSONEncoder)
+    
+    if request.method == 'POST':
+        product_id = request.form.get('product_id', type=int)
+        market_ids = request.form.getlist('market_ids', type=int)  # Multiple markets
+        start_date = request.form.get('start_date')
+        end_date = request.form.get('end_date')
+        
+        if not product_id or not market_ids or not start_date or not end_date:
+            flash('Please select a product, at least one market, and a date range.', 'danger')
+            return render_template('analysis/compare.html', 
+                                products=products, 
+                                markets=markets, 
+                                graphJSON=default_graphJSON)
+        
+        try:
+            start_date = datetime.strptime(start_date, '%Y-%m-%d')
+            end_date = datetime.strptime(end_date, '%Y-%m-%d')
+            if start_date > end_date:
+                flash('Start date must be before end date.', 'danger')
+                return render_template('analysis/compare.html', 
+                                    products=products, 
+                                    markets=markets, 
+                                    graphJSON=default_graphJSON)
+        except ValueError:
+            flash('Invalid date format. Use YYYY-MM-DD.', 'danger')
+            return render_template('analysis/compare.html', 
+                                products=products, 
+                                markets=markets, 
+                                graphJSON=default_graphJSON)
+        
+        # Fetch prices for the selected product and markets
+        prices = Price.query.filter(
+            and_(
+                Price.product_id == product_id,
+                Price.market_id.in_(market_ids),
+                Price.timestamp >= start_date,
+                Price.timestamp <= end_date
+            )
+        ).order_by(Price.timestamp).all()
+        
+        if not prices:
+            flash('No price data found for the selected criteria.', 'danger')
+            return render_template('analysis/compare.html', 
+                                products=products, 
+                                markets=markets, 
+                                graphJSON=default_graphJSON)
+        
+        # Prepare data for table and chart
+        product = Product.query.get(product_id)
+        market_dict = {m.id: m.name for m in Market.query.filter(Market.id.in_(market_ids)).all()}
+        
+        # Table data
+        table_data = [
+            {
+                'market': market_dict[p.market_id],
+                'price': p.price,
+                'timestamp': p.timestamp.strftime('%Y-%m-%d')
+            } for p in prices
+        ]
+        
+        # Plotly chart
+        data = {
+            'timestamp': [p.timestamp for p in prices],
+            'price': [p.price for p in prices],
+            'market': [market_dict[p.market_id] for p in prices]
+        }
+        fig = px.line(
+            data,
+            x='timestamp',
+            y='price',
+            color='market',
+            title=f'Price Comparison for {product.name} Across Markets',
+            labels={'timestamp': 'Date', 'price': 'Price (KES)', 'market': 'Market'}
+        )
+        graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+        
+        return render_template('analysis/compare.html',
+                             products=products,
+                             markets=markets,
+                             table_data=table_data,
+                             product_name=product.name,
+                             graphJSON=graphJSON)
+    
+    # Default: Show last 30 days for GET request
+    default_end = datetime.now()
+    default_start = default_end - timedelta(days=30)
+    
+    return render_template('analysis/compare.html',
+                          products=products,
+                          markets=markets,
+                          default_start=default_start.strftime('%Y-%m-%d'),
+                          default_end=default_end.strftime('%Y-%m-%d'),
+                          graphJSON=default_graphJSON)
