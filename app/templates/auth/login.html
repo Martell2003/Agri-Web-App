@@ -1,26 +1,86 @@
 {% extends "base.html" %}
 {% block title %}Login{% endblock %}
-{% block extra_scripts %}
-    <script>
-        document.body.classList.add('auth-background');
-    </script>
+
+{% block extra_styles %}
+<style>
+    body.auth-background {
+        background: url("../static/img/agric.jpg") no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    .login-wrapper {
+        min-height: calc(100vh - 72px); /* Adjust for navbar height */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        position: relative;
+    }
+
+    .login-card {
+        background: rgba(255, 255, 255, 0.95);
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        max-width: 400px;
+        position: relative;
+        background:transparent;
+        border: 2px solid rgba(255, 255, 255, .5);
+        border-radius: 20px;
+        backdrop-filter: blur(20px);
+        color:darkturquoise;
+        font-weight: bold;
+    }
+
+    .login-card input {
+        color: #000;
+        font-weight: normal;
+    }
+
+    .login-title {
+        font-weight: bold;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .btn-primary {
+        width: 100%;
+    }
+
+    .register-link {
+        margin-top: 1rem;
+        display: block;
+        text-align: center;
+        color: darkturquoise;
+        text-decoration: none;
+    }
+</style>
 {% endblock %}
+
+
+{% block extra_scripts %}
+<script>
+    document.body.classList.add('auth-background');
+</script>
+{% endblock %}
+
 {% block content %}
-    <h1 class="mb-4">Login</h1>
-    <div class="card">
-        <div class="card-body">
-            <form method="POST">
-                <div class="mb-3">
-                    <label for="username" class="form-label">Username</label>
-                    <input type="text" class="form-control" id="username" name="username" required>
-                </div>
-                <div class="mb-3">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password" name="password" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Login</button>
-                <a href="{{ url_for('auth.register') }}" class="btn btn-secondary">Don't have an account? Register</a>
-            </form>
-        </div>
+<div class="login-wrapper">
+    <div class="login-card">
+        <h2 class="login-title">Login to AgriPriceTracker</h2>
+        <form method="POST">
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Login</button>
+            <a href="{{ url_for('auth.register') }}" class="register-link text-muted">Don't have an account? Register</a>
+        </form>
     </div>
+</div>
 {% endblock %}

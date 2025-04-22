@@ -1,51 +1,119 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
 
-{% block content %}
-<div class="text-center py-5">
-    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="AgriPriceTracker Logo" class="mb-4" style="max-height: 100px;">
+{% block extra_styles %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <h1 class="display-5 fw-bold">Welcome to <span class="text-primary">AgriPriceTracker</span></h1>
-    <p class="lead mt-3 mb-4 text-muted">
-        Track, analyze, and predict agricultural produce prices across Kenya with ease.
-    </p>
+<style>
+    .hero-section {
+        background: url("{{ url_for('static', filename='img/hommy.jpg') }}") no-repeat center center;
+        background-size: cover;
+        color: white;
+        padding: 6rem 1rem;
+        text-align: center;
+    }
+
+    .hero-section h1, .hero-section p {
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    }
+
+    .hero-section .btn {
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .hero-section .btn:hover {
+        transform: scale(1.05);
+    }
+
+    .feature-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .scroll-top-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 50%;
+        display: none;
+        z-index: 1000;
+    }
+
+    .lead mb-4 {
+        color: blue;
+        font-weight: bolder;
+    }
+</style>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+<script>
+    AOS.init();
+    window.onscroll = function () {
+        const btn = document.getElementById("scrollTopBtn");
+        btn.style.display = window.scrollY > 300 ? "block" : "none";
+    };
+    function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section">
+    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="AgriPriceTracker Logo" class="mb-4" style="max-height: 80px;">
+    <h1 style="color: rgb(63, 7, 80);">Welcome to AgriPriceTracker</h1>
+    <h1 style="color: whitesmoke;">Track, analyze, and predict agricultural produce prices across Kenya with ease.</h1>
 
     {% if current_user.is_authenticated %}
-        <a href="{{ url_for('analysis.trends') }}" class="btn btn-primary btn-lg px-4">Explore Trends</a>
+        <a href="{{ url_for('analysis.trends') }}" class="btn btn-light btn-lg">Explore Trends</a>
     {% else %}
-        <a href="{{ url_for('auth.login') }}" class="btn btn-success btn-lg px-4">Get Started</a>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-success btn-lg">Get Started</a>
     {% endif %}
 </div>
 
-<hr class="my-5">
-
-<!-- Optional: Features section -->
-<div class="row text-center">
-    <div class="col-md-4 mb-4">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <h5 class="card-title text-primary">Real-Time Data</h5>
-                <p class="card-text">Access up-to-date market prices from different Kenyan counties and sources.</p>
+<!-- Features Section -->
+<div class="container my-5">
+    <div class="row text-center">
+        <div class="col-md-4 mb-4" data-aos="fade-up">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="feature-icon text-primary"><i class="fas fa-clock"></i></div>
+                    <h5 class="card-title text-primary">Real-Time Data</h5>
+                    <p class="card-text">Access up-to-date market prices from different Kenyan counties and sources.</p>
+                </div>
             </div>
         </div>
-    </div>
-
-    <div class="col-md-4 mb-4">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <h5 class="card-title text-success">Trends & Insights</h5>
-                <p class="card-text">Visualize market behavior and track changes over time to plan your moves wisely.</p>
+        <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="feature-icon text-success"><i class="fas fa-chart-line"></i></div>
+                    <h5 class="card-title text-success">Trends & Insights</h5>
+                    <p class="card-text">Visualize market behavior and track changes over time to plan your moves wisely.</p>
+                </div>
             </div>
         </div>
-    </div>
-
-    <div class="col-md-4 mb-4">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <h5 class="card-title text-warning">Smart Predictions</h5>
-                <p class="card-text">Leverage AI to forecast future price movements for better decision-making.</p>
+        <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="200">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="feature-icon text-warning"><i class="fas fa-brain"></i></div>
+                    <h5 class="card-title text-warning">Smart Predictions</h5>
+                    <p class="card-text">Leverage AI to forecast future price movements for better decision-making.</p>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Scroll to Top Button -->
+<button class="scroll-top-btn" onclick="scrollToTop()" id="scrollTopBtn">
+    <i class="fas fa-chevron-up"></i>
+</button>
 {% endblock %}
