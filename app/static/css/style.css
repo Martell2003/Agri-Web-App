@@ -1,11 +1,12 @@
-/* General Body Styling */
+/* General Body Styling 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #fdfdfd;
+    background-color: hwb(0 99% 1% / 0.774);
     margin: 0;
     padding: 0;
     line-height: 1.6;
 }
+*/
 
 /* Navbar Styling */
 .navbar {
@@ -17,7 +18,7 @@ body {
     display: flex;
     align-items: center;
     font-weight: bold;
-    color: #007bff;
+    color: darkturquoise;
 }
 
 .navbar-brand img {
@@ -32,7 +33,18 @@ body {
 }
 
 .nav-link:hover {
-    color: #0056b3;
+    color: darkturquoise;
+}
+
+.navbar-nav .nav-link {
+    color: #000; /* default color, adjust as needed */
+    transition: color 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link:focus {
+    color: darkturquoise !important; /* strong override */
+    text-decoration: none; /* optional: removes underline */
 }
 
 /* Flash Message Styling */
@@ -49,12 +61,12 @@ body {
 .content-overlay h1 {
     font-size: 2.5rem;
     font-weight: bold;
-    color: #343a40;
+    color: darkturquoise;
 }
 
 .content-overlay p {
     font-size: 1.2rem;
-    color: #6c757d;
+    color: darkturquoise;
 }
 
 /* Button Styling */
@@ -66,7 +78,16 @@ body {
 }
 
 .btn-primary:hover {
-    background-color: #0056b3;
+    color: darkturquoise;
+}
+
+.btn btn-primary:hover {
+    color: darkturquoise;
+}
+
+.register-link:hover{
+    color: darkturquoise;
+    text-decoration: underline;
 }
 
 /* Navbar Mobile Responsiveness */
@@ -117,3 +138,133 @@ footer {
         font-size: 1rem;
     }
 }
+
+/* Custom Table Styling */
+.custom-table {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    margin-bottom: 2rem;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.custom-table thead {
+    background-color: #28a745; /* Green for header row */
+    color: #fff; /* White text for contrast */
+}
+
+.custom-table thead th {
+    font-weight: 600;
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.custom-table tbody tr:nth-child(2) {
+    background-color: #fff !important; /* White for second row */
+}
+
+.custom-table tbody tr:nth-child(odd) {
+    background-color: #f8f9fa; /* Light gray for odd rows */
+}
+
+.custom-table tbody tr:nth-child(even) {
+    background-color: #fff; /* White for even rows */
+}
+
+.custom-table tbody tr:hover {
+    background-color: #e9ecef; /* Hover effect */
+    transition: background-color 0.2s ease;
+}
+
+.custom-table td {
+    padding: 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Background Image for Pages
+body {
+    background-image: url('../img/agri-background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+}
+
+*/
+
+/* Semi-transparent overlay for readability */
+.content-overlay {
+    background-color: transparent; /* White overlay with 85% opacity */
+    min-height: 100vh;
+    padding: 2rem;
+    border-radius: 8px;
+}
+
+/* Ensure tables and forms stand out */
+.container, .container-fluid {
+    background-color: transparent; /* Transparent to show overlay */
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .custom-table th,
+    .custom-table td {
+        padding: 0.75rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* Fix card styling for trends.html */
+.card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+  body {
+    background: url('/static/images/bg-farm.jpg') no-repeat center center fixed;
+    background-size: cover;
+  }
+
+  .accordion-body {
+    background-color: rgba(240, 249, 255, 0.85); /* semi-transparent for contrast */
+  }
+
+  .card {
+    background-color: rgba(255, 255, 255, 0.95); /* nice readability over bg image */
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .custom-table thead {
+    background-color: #f3f4f6;
+    font-weight: bold;
+  }
+
+  .custom-table tbody tr:hover {
+    background-color: #e0f7ff;
+    transition: 0.3s ease;
+  }
+
+  .nav-pills .nav-link.active {
+    background-color: #2563eb; /* primary blue */
+    color: white;
+  }
+
+  .nav-pills .nav-link {
+    border-radius: 30px;
+  }
+
+  .form-label {
+    font-weight: 500;
+  }
+
+  h1, .card-title {
+    color: #1e3a8a;
+  }
+

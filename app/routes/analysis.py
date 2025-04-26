@@ -1,6 +1,6 @@
-from flask import Blueprint, render_template, request, flash
+from flask import Blueprint, app, render_template, request, flash
 from sqlalchemy import and_
-from ..models import Price, Market
+from ..models import Price, Market, Region
 from ..analysis.charts import generate_matplotlib_chart, generate_plotly_chart
 from ..analysis.stats import calculate_average_prices, calculate_price_variance
 from flask_login import login_required
@@ -13,8 +13,8 @@ from datetime import datetime, timedelta
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
-
-
+from app.extensions import db
+from flask_paginate import Pagination, get_page_args
 
 analysis_bp = Blueprint('analysis', __name__)
 
@@ -38,23 +38,32 @@ def charts():
 @analysis_bp.route('/trends')
 @login_required
 def trends():
-# Get filter parameters from the form (if submitted)
+    # Get filter parameters from the form (if submitted)
     product_filter = request.form.get('product') if request.method == 'POST' else request.args.get('product')
     market_filter = request.form.get('market') if request.method == 'POST' else request.args.get('market')
     start_date = request.form.get('start_date') if request.method == 'POST' else request.args.get('start_date')
     end_date = request.form.get('end_date') if request.method == 'POST' else request.args.get('end_date')
     search_query = request.form.get('search') if request.method == 'POST' else request.args.get('search')
+    page, per_page, offset = get_page_args(page_parameter='page', per_page_parameter='per_page')
+    per_page = request.args.get('per_page', 10, type=int) # Default to 10 items per page
 
-    # Start with a base query for prices
-    query = Price.query
+    # Start with a base query for prices, joining Product, Market, and Region
+    query = db.session.query(
+        Price,
+        Product.name.label('product_name'),
+        Market.name.label('market_name'),
+        Region.name.label('region_name')
+    ).join(Product, Price.product_id == Product.id
+    ).join(Market, Price.market_id == Market.id
+    ).join(Region, Market.region_id == Region.id)
 
     # Apply product filter
     if product_filter and product_filter != "all":
-        query = query.join(Product).filter(Product.name == product_filter)
+        query = query.filter(Product.name == product_filter)
 
     # Apply market filter
     if market_filter and market_filter != "all":
-        query = query.join(Market).filter(Market.name == market_filter)
+        query = query.filter(Market.name == market_filter)
 
     # Apply date range filter
     if start_date:
@@ -72,22 +81,28 @@ def trends():
 
     # Apply search query (filter products by name)
     if search_query:
-        query = query.join(Product).filter(Product.name.ilike(f"%{search_query}%"))
+        query = query.filter(Product.name.ilike(f"%{search_query}%"))
 
-    # Execute the query to get filtered prices
-    prices = query.all()
+    # Order the query
+    query = query.order_by(Price.timestamp.desc())
 
-    # Debug: Print the number of prices retrieved
-    print(f"Number of prices retrieved: {len(prices)}")
-    for price in prices:
-        print(f"Price: {price.price}, Product: {price.product.name}, Market: {price.market.name}, Timestamp: {price.timestamp}")
+    # Paginate the results
+    total = query.count()
+    prices = query.limit(per_page).offset(offset).all()
+    pagination = Pagination(page=page, per_page=per_page, total=total)  # Corrected argument names
 
-    # Prepare data for plotting
+    # Debug: Print the number of prices retrieved for the current page
+    print(f"Number of prices retrieved for page {page}: {len(prices)}")
+    for price, product_name, market_name, region_name in prices:
+        print(f"Price: {price.price}, Product: {product_name}, Market: {market_name}, Region: {region_name}, Timestamp: {price.timestamp}")
+
+    # Prepare data for plotting (using all filtered data, not just the paginated page)
+    all_filtered_prices = query.all()
     data = {
-        'timestamp': [price.timestamp for price in prices],
-        'price': [price.price for price in prices],
-        'product': [price.product.name for price in prices],
-        'market': [price.market.name for price in prices]
+        'timestamp': [price.timestamp for price, _, _, _ in all_filtered_prices],
+        'price': [price.price for price, _, _, _ in all_filtered_prices],
+        'product': [product_name for _, product_name, _, _ in all_filtered_prices],
+        'market': [market_name for _, _, market_name, _ in all_filtered_prices]
     }
 
     # Create a line plot
@@ -108,11 +123,12 @@ def trends():
     products = Product.query.all()
     markets = Market.query.all()
 
-    # Pass the current filter values to the template for form persistence
+    # Pass the paginated prices and pagination object to the template
     return render_template(
         'analysis/trends.html',
         graphJSON=graphJSON,
-        prices=prices,
+        paginated_prices=prices, # Changed 'prices' to 'paginated_prices'
+        pagination=pagination,
         products=products,
         markets=markets,
         product_filter=product_filter,
@@ -121,6 +137,7 @@ def trends():
         end_date=end_date,
         search_query=search_query
     )
+
 
 @analysis_bp.route('/maps')
 @login_required

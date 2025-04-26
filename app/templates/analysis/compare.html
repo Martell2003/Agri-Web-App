@@ -1,9 +1,125 @@
 {% extends "base.html" %}
 {% block title %}Compare Prices{% endblock %}
+{% block extra_styles %}
+<style>
+    body {
+        background-image: url("../static/img/agric.jpg"); 
+        background-size: cover; /* Ensures the image covers the entire background */
+        background-position: center; /* Centers the image */
+        background-repeat: no-repeat; /* Prevents the image from repeating */
+        /* Optional: Add a background color as a fallback if the image doesn't load */
+        background-color: #f8f9fa;
+    }
+
+    /* Keep the rest of your existing styles */
+    .compare-container {
+        padding: 2rem;
+        background-color: rgba(248, 249, 250, 0.9); /* Light grey with some transparency */
+        border-radius: 8px;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background-color: rgba(255, 255, 255, 0.85); /* White with some transparency */
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+    }
+
+    .form-section h4 {
+        color: #343a40;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 0.5rem;
+    }
+
+    .form-label {
+        font-weight: bold;
+        color: #495057;
+        margin-bottom: 0.3rem;
+    }
+
+    .form-select,
+    .form-control {
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 0.75rem;
+    }
+
+    .form-select:focus,
+    .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+
+    .form-text {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: #fff;
+        padding: 0.8rem 1.5rem;
+        border-radius: 4px;
+        transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #0056b3;
+    }
+
+    .custom-table {
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        overflow: hidden; /* To contain the border-radius of thead/tbody */
+        background-color: rgba(255, 255, 255, 0.9); /* Add a background to the table for better readability */
+    }
+
+    .custom-table thead th {
+        background-color: #007bff;
+        color: #fff;
+        border-bottom: 2px solid #0056b3;
+        padding: 1rem;
+        text-align: left;
+    }
+
+    .custom-table tbody td {
+        padding: 1rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .custom-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .mt-5 h3 {
+        color: #28a745; /* A subtle green for the result heading */
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid #28a745;
+        padding-bottom: 0.5rem;
+        background-color: rgba(255, 255, 255, 0.7); /* Optional background for the heading */
+        padding: 0.5rem;
+        border-radius: 4px;
+    }
+
+    #compare-chart {
+        margin-top: 2rem;
+        background-color: rgba(255, 255, 255, 0.8); /* Add a background to the chart area */
+        padding: 1rem;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+    }
+</style>
+{% endblock %}
 {% block content %}
-<div class="container mt-4">
+<div class="container mt-4 compare-container">
     <h2 class="mb-4">Compare Prices</h2>
-    
+
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
@@ -14,50 +130,53 @@
             {% endfor %}
         {% endif %}
     {% endwith %}
-    
-    <form method="POST" class="mb-4">
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label for="product_id" class="form-label">Product</label>
-                <select class="form-select" id="product_id" name="product_id" required>
-                    <option value="">Select a product</option>
-                    {% for product in products %}
-                        <option value="{{ product.id }}">{{ product.name }}</option>
-                    {% endfor %}
-                </select>
+
+    <div class="form-section">
+        <h4 class="form-section-title">Select Criteria</h4>
+        <form method="POST" class="mb-0">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="product_id" class="form-label">Product</label>
+                    <select class="form-select" id="product_id" name="product_id" required>
+                        <option value="">Select a product</option>
+                        {% for product in products %}
+                            <option value="{{ product.id }}">{{ product.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="market_ids" class="form-label">Markets (select multiple)</label>
+                    <select class="form-select" id="market_ids" name="market_ids" multiple required>
+                        {% for market in markets %}
+                            <option value="{{ market.id }}">{{ market.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <small class="form-text text-muted">Hold Ctrl (Windows) or Cmd (Mac) to select multiple markets.</small>
+                </div>
             </div>
-            <div class="col-md-6 mb-3">
-                <label for="market_ids" class="form-label">Markets (select multiple)</label>
-                <select class="form-select" id="market_ids" name="market_ids" multiple required>
-                    {% for market in markets %}
-                        <option value="{{ market.id }}">{{ market.name }}</option>
-                    {% endfor %}
-                </select>
-                <small class="form-text text-muted">Hold Ctrl (Windows) or Cmd (Mac) to select multiple markets.</small>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="start_date" class="form-label">Start Date</label>
+                    <input type="date" class="form-control" id="start_date" name="start_date" value="{{ default_start }}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="end_date" class="form-label">End Date</label>
+                    <input type="date" class="form-control" id="end_date" name="end_date" value="{{ default_end }}" required>
+                </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label for="start_date" class="form-label">Start Date</label>
-                <input type="date" class="form-control" id="start_date" name="start_date" value="{{ default_start }}" required>
-            </div>
-            <div class="col-md-6 mb-3">
-                <label for="end_date" class="form-label">End Date</label>
-                <input type="date" class="form-control" id="end_date" name="end_date" value="{{ default_end }}" required>
-            </div>
-        </div>
-        <button type="submit" class="btn btn-primary">Compare</button>
-    </form>
-    
+            <button type="submit" class="btn btn-primary">Compare</button>
+        </form>
+    </div>
+
     {% if table_data %}
         <h3 class="mt-5">Price Comparison for {{ product_name }}</h3>
         <div class="table-responsive">
-            <table class="table table-striped">
+            <table class="table custom-table">
                 <thead>
                     <tr>
-                        <th>Market</th>
-                        <th>Price (KES)</th>
-                        <th>Date</th>
+                        <th scope="col">Market</th>
+                        <th scope="col">Price (KES)</th>
+                        <th scope="col">Date</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -71,7 +190,7 @@
                 </tbody>
             </table>
         </div>
-        
+
         <div class="mt-4">
             <div id="compare-chart"></div>
             <script>

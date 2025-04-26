@@ -30,43 +30,66 @@ def insert_sample_data():
             db.session.add(kakamega_region)
             print("Added Region: Kakamega")
 
-        # Flush to assign IDs
+        kericho_region = Region.query.filter_by(name="Kericho").first()
+        if not kericho_region:
+            kericho_region = Region(name="Kericho")
+            db.session.add(kericho_region)
+            print("Added Region: Kericho")
+
+        # Add Bomet Region
+        bomet_region = Region.query.filter_by(name="Bomet").first()
+        if not bomet_region:
+            bomet_region = Region(name="Bomet")
+            db.session.add(bomet_region)
+            print("Added Region: Bomet")
+
         db.session.flush()
 
         # Step 2: Create Markets
-        nairobi_supermarkets = Market.query.filter_by(name="Nairobi Supermarkets").first()
-        if not nairobi_supermarkets:
-            nairobi_supermarkets = Market(name="Nairobi Supermarkets", region_id=nairobi_region.id)
-            db.session.add(nairobi_supermarkets)
-            print("Added Market: Nairobi Supermarkets")
+        markets = {
+            # Existing markets...
+            "Nairobi Supermarkets": nairobi_region.id,
+            "Cheptulu": vihiga_region.id,
+            "Kakamega Town": kakamega_region.id,
+            "Kericho Municipal Market": kericho_region.id,
+            "Kapkatet Market": kericho_region.id,
+            "Chepseon Market": kericho_region.id,
+            "Chesinende Market": kericho_region.id,
+            "Sosiot Market": kericho_region.id,
+            "Fort Ternan Market": kericho_region.id,
+            "Kabianga Shopping Centre": kericho_region.id,
+            "Chepnyogaa Market": kericho_region.id,
 
-        cheptulu = Market.query.filter_by(name="Cheptulu").first()
-        if not cheptulu:
-            cheptulu = Market(name="Cheptulu", region_id=vihiga_region.id)
-            db.session.add(cheptulu)
-            print("Added Market: Cheptulu")
+            # Bomet County Markets
+            "Bomet Town": bomet_region.id,
+            "Silibwet": bomet_region.id,
+            "Longisa": bomet_region.id,
+            "Mogogosiek": bomet_region.id,
+            "Kapkwen": bomet_region.id,
+            "Chebole": bomet_region.id,
+            "Kaplong": bomet_region.id,
+            "Litein": bomet_region.id,
+            "Sigor": bomet_region.id
+        }
 
-        kakamega_town = Market.query.filter_by(name="Kakamega Town").first()
-        if not kakamega_town:
-            kakamega_town = Market(name="Kakamega Town", region_id=kakamega_region.id)
-            db.session.add(kakamega_town)
-            print("Added Market: Kakamega Town")
+        for market_name, region_id in markets.items():
+            market = Market.query.filter_by(name=market_name).first()
+            if not market:
+                market = Market(name=market_name, region_id=region_id)
+                db.session.add(market)
+                print(f"Added Market: {market_name}")
 
-        # Flush to assign IDs
         db.session.flush()
 
         # Step 3: Create Products
         products = [
-            "Wheat Flour Soko Atta Mark 1",
-            "Wheat Flour Winnie's Pure Health Atta Mark 1",
-            "Wheat Flour Tropicana HBF",
-            "Spinach",
-            "Tomatoes",
-            "Dry Onions",
-            "Cabbages",
-            "Banana (Cooking)",
-            "Ethiopian Kales - Kanzira",
-            "Jute Plant (Murenda)"
+            # Existing products...
+            "Wheat Flour Soko Atta Mark 1", "Wheat Flour Winnie's Pure Health Atta Mark 1",
+            "Wheat Flour Tropicana HBF", "Spinach", "Tomatoes", "Dry Onions",
+            "Cabbages", "Banana (Cooking)", "Ethiopian Kales - Kanzira", "Jute Plant (Murenda)",
+            "Rice Basmati", "Rice Pishori", "Rice Sindano", "Rice Milled", "Rice Broken",
+            "Maize", "Beans", "Irish Potatoes", "Cabbages (Large)", "Tomatoes (Fresh)",
+            "Dairy Milk", "Tea Leaves", "Coffee", "Sugarcane", "Vegetables", "Fruits"
         ]
 
         for product_name in products:
@@ -76,80 +99,54 @@ def insert_sample_data():
                 db.session.add(product)
                 print(f"Added Product: {product_name}")
 
-        # Flush to assign IDs
         db.session.flush()
 
-        # Step 4: Create Price Entries (data from KAMIS screenshot)
+        # Step 4: Create Price Entries for Bomet Markets
         price_data = [
-            # Nairobi Supermarkets
-            {
-                "product_name": "Wheat Flour Soko Atta Mark 1",
-                "market_name": "Nairobi Supermarkets",
-                "price": 81.00,
-                "timestamp": datetime(2025, 3, 26)
-            },
-            {
-                "product_name": "Wheat Flour Winnie's Pure Health Atta Mark 1",
-                "market_name": "Nairobi Supermarkets",
-                "price": 128.50,
-                "timestamp": datetime(2025, 3, 26)
-            },
-            {
-                "product_name": "Wheat Flour Tropicana HBF",
-                "market_name": "Nairobi Supermarkets",
-                "price": 80.00,
-                "timestamp": datetime(2025, 3, 26)
-            },
-            # Cheptulu (Vihiga)
-            {
-                "product_name": "Spinach",
-                "market_name": "Cheptulu",
-                "price": 60.00,
-                "timestamp": datetime(2025, 3, 26)
-            },
-            {
-                "product_name": "Tomatoes",
-                "market_name": "Cheptulu",
-                "price": 71.43,
-                "timestamp": datetime(2025, 3, 26)
-            },
-            {
-                "product_name": "Dry Onions",
-                "market_name": "Cheptulu",
-                "price": 80.00,
-                "timestamp": datetime(2025, 3, 26)
-            },
-            {
-                "product_name": "Cabbages",
-                "market_name": "Cheptulu",
-                "price": 30.77,
-                "timestamp": datetime(2025, 3, 26)
-            },
-            {
-                "product_name": "Banana (Cooking)",
-                "market_name": "Cheptulu",
-                "price": 38.46,
-                "timestamp": datetime(2025, 3, 26)
-            },
-            {
-                "product_name": "Ethiopian Kales - Kanzira",
-                "market_name": "Cheptulu",
-                "price": 60.00,
-                "timestamp": datetime(2025, 3, 26)
-            },
-            {
-                "product_name": "Jute Plant (Murenda)",
-                "market_name": "Cheptulu",
-                "price": 90.00,
-                "timestamp": datetime(2025, 3, 26)
-            },
-            # Kakamega Town
-            {
-                "product_name": "Cabbages",
-                "market_name": "Kakamega Town",
-                "price": 15.00,
-                "timestamp": datetime(2025, 3, 26)
-            }
+            # Bomet Town
+            {"product_name": "Irish Potatoes", "market_name": "Bomet Town", "price": 28, "timestamp": datetime(2025, 4, 26)},
+            {"product_name": "Tea Leaves", "market_name": "Bomet Town", "price": 25, "timestamp": datetime(2025, 4, 26)},
+            {"product_name": "Dairy Milk", "market_name": "Bomet Town", "price": 55, "timestamp": datetime(2025, 4, 26)},
+
+            # Silibwet
+            {"product_name": "Irish Potatoes", "market_name": "Silibwet", "price": 26.67, "timestamp": datetime(2025, 4, 26)},
+            {"product_name": "Tea Leaves", "market_name": "Silibwet", "price": 24, "timestamp": datetime(2025, 4, 26)},
+            {"product_name": "Dairy Milk", "market_name": "Silibwet", "price": 54, "timestamp": datetime(2025, 4, 26)},
+
+            # Longisa
+            {"product_name": "Irish Potatoes", "market_name": "Longisa", "price": 27, "timestamp": datetime(2025, 4, 26)},
+            {"product_name": "Tea Leaves", "market_name": "Longisa", "price": 26, "timestamp": datetime(2025, 4, 26)},
+            {"product_name": "Dairy Milk", "market_name": "Longisa", "price": 56, "timestamp": datetime(2025, 4, 26)},
+
+            # Mogogosiek
+            {"product_name": "Irish Potatoes", "market_name": "Mogogosiek", "price": 27.27, "timestamp": datetime(2025, 4, 26)},
+            {"product_name": "Tea Leaves", "market_name": "Mogogosiek", "price": 27, "timestamp": datetime(2025, 4, 26)},
+            {"product_name": "Dairy Milk", "market_name": "Mogogosiek", "price": 57, "timestamp": datetime(2025, 4, 26)},
+
+            # Kapkwen
+            {"product_name": "Irish Potatoes", "market_name": "Kapkwen", "price": 27.27, "timestamp": datetime(2025, 4, 26)},
+            {"product_name": "Tea Leaves", "market_name": "Kapkwen", "price": 25, "timestamp": datetime(2025, 4, 26)},
+            {"product_name": "Dairy Milk", "market_name": "Kapkwen", "price": 55, "timestamp": datetime(2025, 4, 26)},
+
+            # Chebole
+            {"product_name": "Irish Potatoes", "market_name": "Chebole", "price": 27, "timestamp": datetime(2025, 4, 26)},
+            {"product_name": "Tea Leaves", "market_name": "Chebole", "price": 24, "timestamp": datetime(2025, 4, 26)},
+            {"product_name": "Dairy Milk", "market_name": "Chebole", "price": 54, "timestamp": datetime(2025, 4, 26)},
+
+            # Kaplong
+            {"product_name": "Irish Potatoes", "market_name": "Kaplong", "price": 27, "timestamp": datetime(2025, 4, 26)},
+            {"product_name": "Tea Leaves", "market_name": "Kaplong", "price": 26, "timestamp": datetime(2025, 4, 26)},
+            {"product_name": "Dairy Milk", "market_name": "Kaplong", "price": 56, "timestamp": datetime(2025, 4, 26)},
+
+            # Litein
+            {"product_name": "Irish Potatoes", "market_name": "Litein", "price": 27.59, "timestamp": datetime(2025, 4, 26)},
+            {"product_name": "Tea Leaves", "market_name": "Litein", "price": 25, "timestamp": datetime(2025, 4, 26)},
+            {"product_name": "Dairy Milk", "market_name": "Litein", "price": 55, "timestamp": datetime(2025, 4, 26)},
+
+            # Sigor (Note: Sigor is near Bomet but in West Pokot; included here as per your data)
+            {"product_name": "Irish Potatoes", "market_name": "Sigor", "price": 27, "timestamp": datetime(2025, 4, 26)},
+            {"product_name": "Tea Leaves", "market_name": "Sigor", "price": 27, "timestamp": datetime(2025, 4, 26)},
+            {"product_name": "Dairy Milk", "market_name": "Sigor", "price": 57, "timestamp": datetime(2025, 4, 26)},
         ]
 
         for entry in price_data:
@@ -165,7 +162,6 @@ def insert_sample_data():
                 db.session.add(price)
                 print(f"Added Price: {product.name} at {market.name} - {entry['price']} KES")
 
-        # Commit all changes
         db.session.commit()
         print("Data insertion completed successfully!")
 
@@ -175,3 +171,4 @@ def insert_sample_data():
 
 if __name__ == "__main__":
     insert_sample_data()
+    print("Sample data inserted successfully.")

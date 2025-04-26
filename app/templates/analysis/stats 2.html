@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Statistics{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Market Statistics</h1>
+
+    <!-- Filter Form -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Filter Statistics</h5>
+            <form method="GET" action="{{ url_for('analysis.stats') }}">
+                <div class="row">
+                    <!-- Product Filter -->
+                    <div class="col-md-3 mb-3">
+                        <label for="product" class="form-label">Product</label>
+                        <select name="product" id="product" class="form-select">
+                            <option value="all" {% if not product_filter or product_filter == "all" %}selected{% endif %}>All Products</option>
+                            {% for product in products %}
+                                <option value="{{ product.name }}" {% if product_filter == product.name %}selected{% endif %}>{{ product.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Market Filter -->
+                    <div class="col-md-3 mb-3">
+                        <label for="market" class="form-label">Market</label>
+                        <select name="market" id="market" class="form-select">
+                            <option value="all" {% if not market_filter or market_filter == "all" %}selected{% endif %}>All Markets</option>
+                            {% for market in markets %}
+                                <option value="{{ market.name }}" {% if market_filter == market.name %}selected{% endif %}>{{ market.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Date Range Filter -->
+                    <div class="col-md-2 mb-3">
+                        <label for="start_date" class="form-label">Start Date</label>
+                        <input type="date" name="start_date" id="start_date" class="form-control" value="{{ start_date or '' }}">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="end_date" class="form-label">End Date</label>
+                        <input type="date" name="end_date" id="end_date" class="form-control" value="{{ end_date or '' }}">
+                    </div>
+
+                    <!-- Search Bar -->
+                    <div class="col-md-2 mb-3">
+                        <label for="search" class="form-label">Search Product</label>
+                        <input type="text" name="search" id="search" class="form-control" placeholder="e.g., Wheat" value="{{ search_query or '' }}">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Apply Filters</button>
+                <a href="{{ url_for('analysis.stats') }}" class="btn btn-secondary">Clear Filters</a>
+            </form>
+        </div>
+    </div>
+
+    <!-- Statistics Table -->
+    {% if stats %}
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Price Statistics by Product</h5>
+                <div class="table-responsive">
+                    <table class="table custom-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Product</th>
+                                <th scope="col">Average Price (KES)</th>
+                                <th scope="col">Min Price (KES)</th>
+                                <th scope="col">Max Price (KES)</th>
+                                <th scope="col">Number of Markets</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for stat in stats %}
+                            <tr>
+                                <td>{{ stat.product }}</td>
+                                <td>{{ stat.avg_price | default(0) | round(2) }}</td>
+                                <td>{{ stat.min_price | default(0) | round(2) }}</td>
+                                <td>{{ stat.max_price | default(0) | round(2) }}</td>
+                                <td>{{ stat.num_markets | default(0) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <p>No statistics available. Please add data to the database.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
