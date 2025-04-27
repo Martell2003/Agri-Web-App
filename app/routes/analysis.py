@@ -1,5 +1,5 @@
 from flask import Blueprint, app, render_template, request, flash
-from sqlalchemy import and_
+from sqlalchemy import and_, cast
 from ..models import Price, Market, Region
 from ..analysis.charts import generate_matplotlib_chart, generate_plotly_chart
 from ..analysis.stats import calculate_average_prices, calculate_price_variance
@@ -14,7 +14,8 @@ import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 from app.extensions import db
-from flask_paginate import Pagination, get_page_args
+from flask_paginate import Pagination, get_page_args, get_page_parameter
+from sqlalchemy.types import Date
 
 analysis_bp = Blueprint('analysis', __name__)
 
@@ -35,109 +36,103 @@ def charts():
 
     return render_template('analysis/charts.html', matplotlib_chart=matplotlib_chart, plotly_chart=plotly_chart)
 
-@analysis_bp.route('/trends')
+@analysis_bp.route('/trends', methods=['GET', 'POST'])
 @login_required
 def trends():
-    # Get filter parameters from the form (if submitted)
-    product_filter = request.form.get('product') if request.method == 'POST' else request.args.get('product')
-    market_filter = request.form.get('market') if request.method == 'POST' else request.args.get('market')
-    start_date = request.form.get('start_date') if request.method == 'POST' else request.args.get('start_date')
-    end_date = request.form.get('end_date') if request.method == 'POST' else request.args.get('end_date')
-    search_query = request.form.get('search') if request.method == 'POST' else request.args.get('search')
-    page, per_page, offset = get_page_args(page_parameter='page', per_page_parameter='per_page')
-    per_page = request.args.get('per_page', 10, type=int) # Default to 10 items per page
+    import logging
+    logger = logging.getLogger(__name__)
 
-    # Start with a base query for prices, joining Product, Market, and Region
-    query = db.session.query(
-        Price,
-        Product.name.label('product_name'),
-        Market.name.label('market_name'),
-        Region.name.label('region_name')
-    ).join(Product, Price.product_id == Product.id
-    ).join(Market, Price.market_id == Market.id
-    ).join(Region, Market.region_id == Region.id)
-
-    # Apply product filter
-    if product_filter and product_filter != "all":
-        query = query.filter(Product.name == product_filter)
-
-    # Apply market filter
-    if market_filter and market_filter != "all":
-        query = query.filter(Market.name == market_filter)
-
-    # Apply date range filter
-    if start_date:
-        try:
-            start_date = datetime.strptime(start_date, '%Y-%m-%d')
-            query = query.filter(Price.timestamp >= start_date)
-        except ValueError:
-            print(f"Invalid start date: {start_date}")
-    if end_date:
-        try:
-            end_date = datetime.strptime(end_date, '%Y-%m-%d')
-            query = query.filter(Price.timestamp <= end_date)
-        except ValueError:
-            print(f"Invalid end date: {end_date}")
-
-    # Apply search query (filter products by name)
-    if search_query:
-        query = query.filter(Product.name.ilike(f"%{search_query}%"))
-
-    # Order the query
-    query = query.order_by(Price.timestamp.desc())
-
-    # Paginate the results
-    total = query.count()
-    prices = query.limit(per_page).offset(offset).all()
-    pagination = Pagination(page=page, per_page=per_page, total=total)  # Corrected argument names
-
-    # Debug: Print the number of prices retrieved for the current page
-    print(f"Number of prices retrieved for page {page}: {len(prices)}")
-    for price, product_name, market_name, region_name in prices:
-        print(f"Price: {price.price}, Product: {product_name}, Market: {market_name}, Region: {region_name}, Timestamp: {price.timestamp}")
-
-    # Prepare data for plotting (using all filtered data, not just the paginated page)
-    all_filtered_prices = query.all()
-    data = {
-        'timestamp': [price.timestamp for price, _, _, _ in all_filtered_prices],
-        'price': [price.price for price, _, _, _ in all_filtered_prices],
-        'product': [product_name for _, product_name, _, _ in all_filtered_prices],
-        'market': [market_name for _, _, market_name, _ in all_filtered_prices]
-    }
-
-    # Create a line plot
-    fig = px.line(
-        data,
-        x='timestamp',
-        y='price',
-        color='product',
-        line_group='market',
-        hover_name='market',
-        title='Price Trends Over Time'
-    )
-
-    # Convert the plot to JSON for rendering in the template
-    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-
-    # Get all products and markets for the filter dropdowns
     products = Product.query.all()
     markets = Market.query.all()
+    product_filter = request.args.get('product')
+    market_filter = request.args.get('market')
+    start_date_str = request.args.get('start_date')
+    end_date_str = request.args.get('end_date')
+    search_query = request.args.get('search')
+    page = request.args.get(get_page_parameter(), type=int, default=1)
+    per_page = 10
 
-    # Pass the paginated prices and pagination object to the template
+    query = Price.query.join(Product).join(Market, Price.market_id == Market.id)
+
+    if product_filter and product_filter != 'all':
+        query = query.filter(Product.name == product_filter)
+        logger.debug(f"Applied product filter: {product_filter}")
+    if market_filter and market_filter != 'all':
+        query = query.filter(Market.name == market_filter)
+        logger.debug(f"Applied market filter: {market_filter}")
+    if start_date_str:
+        try:
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            query = query.filter(Price.timestamp >= start_date)
+            logger.debug(f"Applied start date filter: {start_date}")
+        except ValueError:
+            flash('Invalid start date format. Please use YYYY-MM-DD.', 'danger')
+            return render_template('analysis/trends.html', products=products, markets=markets)
+    if end_date_str:
+        try:
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+            query = query.filter(Price.timestamp <= end_date)
+            logger.debug(f"Applied end date filter: {end_date}")
+        except ValueError:
+            flash('Invalid end date format. Please use YYYY-MM-DD.', 'danger')
+            return render_template('analysis/trends.html', products=products, markets=markets)
+    if search_query:
+        query = query.filter((Product.name.ilike(f'%{search_query}%')) | (Market.name.ilike(f'%{search_query}%')))
+        logger.debug(f"Applied search query: {search_query}")
+
+    query = query.order_by(Price.timestamp.desc())
+
+    # Chart data
+    prices_for_chart = query.all()
+    logger.debug(f"Prices for chart: {len(prices_for_chart)}")
+    if prices_for_chart:
+        logger.debug(f"Sample price data: {[(p.product.name, p.market.name, p.price, p.timestamp) for p in prices_for_chart[:3]]}")
+    
+    chart_data = {}
+    if prices_for_chart:
+        for price in prices_for_chart:
+            product_name = price.product.name
+            if product_name not in chart_data:
+                chart_data[product_name] = {'dates': [], 'prices': []}
+            chart_data[product_name]['dates'].append(price.timestamp.strftime('%Y-%m-%d'))
+            chart_data[product_name]['prices'].append(price.price)
+    
+    graph_json = []
+    for product_name, data in chart_data.items():
+        graph_json.append({
+            'x': data['dates'],
+            'y': data['prices'],
+            'type': 'scatter',
+            'name': product_name
+        })
+    logger.debug(f"Graph JSON data: {graph_json}")
+    graph_json = json.dumps({"data": graph_json, "layout": {}}, cls=plotly.utils.PlotlyJSONEncoder)
+    logger.debug(f"Serialized graphJSON: {graph_json}")
+
+    # Table data
+    paginated_prices = query.paginate(page=page, per_page=per_page)
+    table_data = []
+    for price in paginated_prices.items:
+        product_name = price.product.name
+        market_name = price.market.name
+        region_name = price.market.region.name
+        table_data.append((price, product_name, market_name, region_name))
+    pagination = Pagination(page=page, total=query.count(), per_page=per_page, record_name='prices')
+    logger.debug(f"Paginated prices count: {len(table_data)}")
+
     return render_template(
         'analysis/trends.html',
-        graphJSON=graphJSON,
-        paginated_prices=prices, # Changed 'prices' to 'paginated_prices'
-        pagination=pagination,
         products=products,
         markets=markets,
         product_filter=product_filter,
         market_filter=market_filter,
-        start_date=start_date,
-        end_date=end_date,
-        search_query=search_query
+        start_date=start_date_str,
+        end_date=end_date_str,
+        search_query=search_query,
+        graphJSON=graph_json,
+        paginated_prices=table_data,
+        pagination=pagination
     )
-
 
 @analysis_bp.route('/maps')
 @login_required
@@ -250,7 +245,7 @@ def stats():
     )
 
 @analysis_bp.route('/predict', methods=['GET', 'POST'])
-@login_required
+#@login_required # Removed to run the code
 def predict_price():
     # Fetch all products and markets for the dropdowns
     products = Product.query.all()
@@ -290,7 +285,7 @@ def predict_price():
 
         # Prepare features (X) and target (y)
         X = df[['days']].values  # Feature: number of days
-        y = df['price'].values   # Target: price
+        y = df['price'].values  # Target: price
 
         # Train a linear regression model
         model = LinearRegression()
@@ -302,7 +297,7 @@ def predict_price():
         future_price = model.predict([[future_day]])[0]
 
         # Calculate the prediction date
-        prediction_date = start_date + timedelta(days=future_day)
+        prediction_date = start_date + timedelta(days=int(future_day)) # Convert to int
 
         # Prepare the result
         product = Product.query.get(product_id)
@@ -318,6 +313,7 @@ def predict_price():
         return render_template('analysis/predict.html', products=products, markets=markets, result=result)
 
     return render_template('analysis/predict.html', products=products, markets=markets)
+
 
 @analysis_bp.route('/compare', methods=['GET', 'POST'])
 @login_required

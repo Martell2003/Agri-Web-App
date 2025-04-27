@@ -1,13 +1,12 @@
 from datetime import datetime
-from flask import Flask, redirect, url_for, request, flash
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, redirect, url_for, request, flash, render_template
 from flask_login import LoginManager, current_user
 from flask_migrate import Migrate
 from dotenv import load_dotenv
 import os
 from config import Config
 from flask_admin.contrib.sqla import ModelView
-from flask_admin import Admin, BaseView, expose
+from flask_admin import Admin, BaseView, expose, AdminIndexView
 import csv
 from io import StringIO
 from wtforms import BooleanField, SelectField, PasswordField, StringField, validators
@@ -32,17 +31,20 @@ load_dotenv()
 # Initialize extensions directly
 login_manager = LoginManager()
 migrate = Migrate()
-admin = Admin(name='AgriPriceTracker Admin', template_mode='bootstrap4')
+admin = None  # Changed to None and initialized later
 
 # Custom Admin View with access control
 class AdminModelView(ModelView):
     def is_accessible(self):
-        logger.debug(f"Checking access for AdminModelView, user: {current_user}, is_admin: {current_user.is_admin if current_user.is_authenticated else False}")
+        logger.debug(
+            f"Checking access for AdminModelView, user: {current_user}, is_admin: {current_user.is_admin if current_user.is_authenticated else False}")
         return current_user.is_authenticated and current_user.is_admin
 
     def inaccessible_callback(self, name, **kwargs):
         logger.debug("AdminModelView inaccessible, redirecting to login")
         return redirect(url_for('auth.login'))
+
+
 
 # Custom Form for UserModelView
 class UserAdminForm(FlaskForm):
@@ -152,67 +154,56 @@ class PriceModelView(AdminModelView):
 # Custom Market Admin View
 class MarketModelView(AdminModelView):
     def is_accessible(self):
-        logger.debug(f"Checking access for MarketModelView, user: {current_user}, is_admin: {current_user.is_admin if current_user.is_authenticated else False}")
+        logger.debug(
+            f"Checking access for MarketModelView, user: {current_user}, is_admin: {current_user.is_admin if current_user.is_authenticated else False}")
         return current_user.is_authenticated and current_user.is_admin
 
     def inaccessible_callback(self, name, **kwargs):
         logger.debug("MarketModelView inaccessible, redirecting to login")
         return redirect(url_for('auth.login'))
 
-    column_list = ['id', 'name', 'region.name', 'latitude', 'longitude']
-    form_columns = ['name', 'region', 'latitude', 'longitude']
-    column_filters = ['name', 'region.name']
-    column_searchable_list = ['name']
     form_args = {
         'name': {
             'label': 'Name',
             'validators': [validators.DataRequired()],
             'description': 'Enter the market name (e.g., Kibuye Market).'
         },
-        'region': {
+        'region_id': {
             'label': 'Region',
             'validators': [validators.DataRequired()],
             'description': 'Select the region where the market is located.'
         },
         'latitude': {
-            'validators': [validators.Optional(), validators.NumberRange(min=-90, max=90, message="Latitude must be between -90 and 90")],
+            'validators': [validators.Optional(),
+                           validators.NumberRange(min=-90, max=90, message="Latitude must be between -90 and 90")],
             'description': 'Enter latitude (e.g., -0.074 for Kisumu). Optional.'
         },
         'longitude': {
-            'validators': [validators.Optional(), validators.NumberRange(min=-180, max=180, message="Longitude must be between -180 and 180")],
+            'validators': [validators.Optional(),
+                           validators.NumberRange(min=-180, max=180, message="Longitude must be between -180 and 180")],
             'description': 'Enter longitude (e.g., 34.7778 for Kisumu). Optional.'
         }
     }
 
+    form_columns = ['name', 'region_id', 'latitude', 'longitude']
+    column_list = ['name', 'region', 'latitude', 'longitude']
+
     def scaffold_form(self):
-        logger.debug("Scaffolding form for MarketModelView")
         form_class = super(MarketModelView, self).scaffold_form()
+        form_class.region_id = SelectField('Region', coerce=int, validators=[validators.DataRequired()])
         return form_class
 
     def create_form(self):
-        logger.debug("Creating form for MarketModelView")
-        form = super(MarketModelView, self).create_form()
         from app.models.region import Region
-        form.region.choices = [(r.id, r.name) for r in Region.query.all()]
+        form = super(MarketModelView, self).create_form()
+        form.region_id.choices = [(r.id, r.name) for r in Region.query.all()]
         return form
 
     def edit_form(self):
-        logger.debug("Editing form for MarketModelView")
+        from app.models.region import Region
         form = super(MarketModelView, self).edit_form()
-        from app.models.region import Region
-        form.region.choices = [(r.id, r.name) for r in Region.query.all()]
+        form.region_id.choices = [(r.id, r.name) for r in Region.query.all()]
         return form
-
-    @expose('/edit/', methods=('GET', 'POST'))
-    def edit_view(self, **kwargs):
-        logger.debug(f"Calling edit_view for MarketModelView with kwargs: {kwargs}")
-        return super(MarketModelView, self).edit_view(**kwargs)
-
-    def on_model_change(self, form, model, is_created):
-        logger.debug(f"On model change for MarketModelView, is_created: {is_created}, model: {model.name}")
-        from app.models.region import Region
-        if not Region.query.get(form.region.data):
-            raise ValueError('Invalid region selected.')
 
 # Custom CSV Upload View
 class CSVUploadView(BaseView):
@@ -246,8 +237,12 @@ class CSVUploadView(BaseView):
                     csv_reader = csv.DictReader(stream)
 
                     required_columns = ['product_name', 'market_name', 'price', 'timestamp']
+                    if not csv_reader.fieldnames:
+                        flash('CSV file is empty or missing headers.', 'danger')
+                        return self.render('admin/csv_upload.html')
                     if not all(col in csv_reader.fieldnames for col in required_columns):
-                        flash(f'CSV file must contain the following columns: {", ".join(required_columns)}', 'danger')
+                        flash(
+                            f'CSV file must contain the following columns: {", ".join(required_columns)}', 'danger')
                         return self.render('admin/csv_upload.html')
 
                     from app.models.product import Product
@@ -285,8 +280,8 @@ class CSVUploadView(BaseView):
                 except Exception as e:
                     db.session.rollback()
                     flash(f'Error processing CSV file: {str(e)}', 'danger')
-            else:
-                flash('Please upload a valid CSV file.', 'danger')
+        else:
+            flash('Please upload a valid CSV file.', 'danger')
 
         return self.render('admin/csv_upload.html')
 
@@ -301,7 +296,28 @@ def create_app():
     migrate.init_app(app, db)
 
     # Initialize Flask-Admin
-    admin.init_app(app)
+    # admin.init_app(app) # Commented out and Initialized with custom index view
+
+    # Custom index view for Flask-Admin
+    class MyAdminIndexView(AdminIndexView):
+        def __init__(self, *args, **kwargs):
+            super(MyAdminIndexView, self).__init__(*args, **kwargs)
+            self._template_name = 'admin/admin.html' # set the template here
+
+        @expose('/')
+        def index(self):
+            if not current_user.is_authenticated:
+                return redirect(url_for('auth.login'))
+            if not current_user.is_admin:
+                flash('You do not have permission to access the admin area.', 'danger')
+                return redirect(url_for('main.index'))
+            return super(MyAdminIndexView, self).index()
+
+        #def render(self, template, **kwargs):
+        #    return render_template('admin/admin.html', **kwargs)
+
+    admin = Admin(app, name='AgriPriceTracker Admin', template_mode='bootstrap4',
+                  index_view=MyAdminIndexView())  # initialize
 
     # Register blueprints
     from app.routes.main import main_bp
