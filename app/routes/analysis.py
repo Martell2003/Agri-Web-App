@@ -245,7 +245,7 @@ def stats():
     )
 
 @analysis_bp.route('/predict', methods=['GET', 'POST'])
-#@login_required # Removed to run the code
+@login_required
 def predict_price():
     # Fetch all products and markets for the dropdowns
     products = Product.query.all()

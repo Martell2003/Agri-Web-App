@@ -9,7 +9,6 @@
         background-repeat: no-repeat;
         background-color: #f8f9fa;
     }
-
     .predict-container {
         padding: 3rem;
         background-color: rgba(248, 249, 250, 0.9); /* Light grey with some transparency */
@@ -18,15 +17,16 @@
         margin-top: 2rem; /* Add some top margin to separate from navigation */
     }
 
-    .predict-container h1 {
-        color: #007bff; /* Primary blue for the heading */
+    .predict {
+        color: #2e7d32; /* Primary blue for the heading */
         margin-bottom: 1.5rem;
         text-align: center;
-        border-bottom: 3px solid #007bff;
+        border-bottom: 3px solid #2e7d32;
         padding-bottom: 0.75rem;
         display: inline-block; /* To make the border fit the text */
         width: 100%; /* Ensure it spans the container */
     }
+    
 
     .form-label {
         font-weight: bold;
@@ -49,8 +49,8 @@
     }
 
     .btn-primary {
-        background-color: #28a745; /* Success green for the predict button */
-        border-color: #28a745;
+        background-color: #007bff; /* Success green for the predict button */
+        border-color: #007bff;
         color: #fff;
         padding: 1rem 2rem;
         border-radius: 6px;
@@ -92,7 +92,7 @@
 {% block content %}
 
 <div class="container mt-5 predict-container">
-    <h1>Predict Future Price</h1>
+    <h2 class="predict">Predict Future Price</h2>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}

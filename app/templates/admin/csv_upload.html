@@ -1,25 +1,29 @@
 {% extends 'admin/master.html' %}
-{% block admin_content %}
-    <h1>Upload CSV File</h1>
-    <p>Upload a CSV file to bulk import price data. The CSV should contain the following columns:</p>
-    <ul>
-        <li><code>product_name</code>: The name of the product (must match an existing product in the database)</li>
-        <li><code>market_name</code>: The name of the market (must match an existing market in the database)</li>
-        <li><code>price</code>: The price value (e.g., 100.50)</li>
-        <li><code>timestamp</code>: The date of the price (e.g., 2025-04-15)</li>
-    </ul>
-    <p><strong>Example CSV:</strong></p>
-    <pre>
-product_name,market_name,price,timestamp
-Maize,Nairobi Market,50.00,2025-04-15
-Rice,Mombasa Market,75.00,2025-04-15
-    </pre>
-
-    <form method="POST" enctype="multipart/form-data">
+{% block page_body %}
+  <h1 class="mt-4 mb-4">Upload Price Data CSV</h1>
+  <div class="card">
+    <div class="card-header">
+      <i class="fas fa-file-upload"></i> CSV Upload
+    </div>
+    <div class="card-body">
+      <p class="card-text">
+        Upload a CSV file containing price data. The file must include the following columns:
+      </p>
+      <ul>
+        <li><strong>product_name</strong>: Name of the product (e.g., Maize)</li>
+        <li><strong>market_name</strong>: Name of the market (e.g., Kibuye Market)</li>
+        <li><strong>price</strong>: Price value (e.g., 50.0)</li>
+        <li><strong>timestamp</strong>: Date in YYYY-MM-DD format (e.g., 2025-04-21)</li>
+      </ul>
+      <form method="POST" enctype="multipart/form-data">
         <div class="form-group">
-            <label for="csv_file">Select CSV File:</label>
-            <input type="file" class="form-control-file" id="csv_file" name="csv_file" accept=".csv" required>
+          <label for="csv_file">Select CSV File</label>
+          <input type="file" class="form-control-file" id="csv_file" name="csv_file" accept=".csv" required>
         </div>
-        <button type="submit" class="btn btn-primary">Upload</button>
-    </form>
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-upload"></i> Upload CSV
+        </button>
+      </form>
+    </div>
+  </div>
 {% endblock %}

@@ -1,7 +1,0 @@
-{% extends 'admin/base.html' %}
-{% block brand %}
-    <div class="navbar-brand">
-        <a href="{{ url_for('main.home') }}" class="navbar-brand">Home</a>
-        {{ super() }}  {# Include the default Flask-Admin branding #}
-    </div>
-{% endblock %}

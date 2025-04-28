@@ -12,6 +12,15 @@
     }
 
     /* Keep the rest of your existing styles */
+    .comp {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        display: inline-block;
+        width: 100%;
+        color: #2e7d32;
+        border-bottom: 3px solid #2e7d32;
+    }
     .compare-container {
         padding: 2rem;
         background-color: rgba(248, 249, 250, 0.9); /* Light grey with some transparency */
@@ -28,10 +37,10 @@
     }
 
     .form-section h4 {
-        color: #343a40;
+        color: #2e7d32;
         margin-bottom: 1rem;
-        border-bottom: 2px solid #007bff;
         padding-bottom: 0.5rem;
+        width: 100%;
     }
 
     .form-label {
@@ -118,7 +127,7 @@
 {% endblock %}
 {% block content %}
 <div class="container mt-4 compare-container">
-    <h2 class="mb-4">Compare Prices</h2>
+    <h2 class="comp">Compare Prices</h2>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
