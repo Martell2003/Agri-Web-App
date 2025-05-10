@@ -1,147 +1,116 @@
 {% extends "base.html" %}
 {% block title %}Predict Price{% endblock %}
+
 {% block extra_styles %}
 <style>
-    body {
-        background-image: url("../static/img/agric.jpg"); /* Replace with your image path */
+
+body {
+        background-image: url("../static/img/agric.jpg");
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
-        background-color: #f8f9fa;
+        background-color: #e0f7fa;
     }
-    .predict-container {
-        padding: 3rem;
-        background-color: rgba(248, 249, 250, 0.9); /* Light grey with some transparency */
-        border-radius: 10px;
-        box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.075);
-        margin-top: 2rem; /* Add some top margin to separate from navigation */
-    }
-
-    .predict {
-        color: #2e7d32; /* Primary blue for the heading */
-        margin-bottom: 1.5rem;
-        text-align: center;
+    .predict-container h1 {
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+        color:#2e7d32 ;
         border-bottom: 3px solid #2e7d32;
-        padding-bottom: 0.75rem;
-        display: inline-block; /* To make the border fit the text */
-        width: 100%; /* Ensure it spans the container */
     }
-    
-
-    .form-label {
-        font-weight: bold;
-        color: #495057;
-        margin-bottom: 0.5rem;
-    }
-
     .form-select,
     .form-control {
-        border: 1px solid #ced4da;
-        border-radius: 6px;
         padding: 0.8rem;
         font-size: 1rem;
     }
-
-    .form-select:focus,
-    .form-control:focus {
-        border-color: #007bff;
-        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-    }
-
     .btn-primary {
-        background-color: #007bff; /* Success green for the predict button */
-        border-color: #007bff;
-        color: #fff;
         padding: 1rem 2rem;
-        border-radius: 6px;
         font-size: 1.1rem;
-        transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
     }
-
-    .btn-primary:hover {
-        background-color: #1e7e34;
-        border-color: #1e7e34;
-    }
-
     .mt-4 h2 {
-        color: #007bff; /* Primary blue for the result heading */
+        color: #007bff;
         margin-bottom: 1rem;
         border-bottom: 2px solid #007bff;
         padding-bottom: 0.5rem;
     }
-
     .mt-4 p {
         font-size: 1.1rem;
         color: #343a40;
         margin-bottom: 0.5rem;
-        background-color: rgba(255, 255, 255, 0.7); /* Optional background for result text */
+        background-color: rgba(255, 255, 255, 0.7);
         padding: 0.75rem;
         border-radius: 4px;
     }
-
     .mt-4 p strong {
         font-weight: bold;
     }
-
     .mt-4 p small {
         color: #6c757d;
         font-style: italic;
     }
 </style>
 {% endblock %}
-{% block content %}
 
-<div class="container mt-5 predict-container">
-    <h2 class="predict">Predict Future Price</h2>
+{% block content %}
+<div class="container py-4 page-container predict-container">
+    <h1 class="mb-4 text-center">🔮 Predict Future Price</h1>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            {% endfor %}
+            <div class="alert-container">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
         {% endif %}
     {% endwith %}
 
-    <form method="POST" action="{{ url_for('analysis.predict_price') }}">
-        <div class="mb-3">
-            <label for="product_id" class="form-label">Select Product</label>
-            <select name="product_id" id="product_id" class="form-select" required>
-                <option value="">-- Select a Product --</option>
-                {% for product in products %}
-                    <option value="{{ product.id }}">{{ product.name }}</option>
-                {% endfor %}
-            </select>
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Prediction Parameters</h5>
+            <form method="POST" action="{{ url_for('analysis.predict_price') }}">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="product_id" class="form-label">Select Product</label>
+                        <select name="product_id" id="product_id" class="form-select" required>
+                            <option value="">-- Select a Product --</option>
+                            {% for product in products %}
+                                <option value="{{ product.id }}">{{ product.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="market_id" class="form-label">Select Market</label>
+                        <select name="market_id" id="market_id" class="form-select" required>
+                            <option value="">-- Select a Market --</option>
+                            {% for market in markets %}
+                                <option value="{{ market.id }}">{{ market.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="days_ahead" class="form-label">Days Ahead (default is 7)</label>
+                        <input type="number" name="days_ahead" id="days_ahead" class="form-control" value="7" min="1" required>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">🔍 Predict Price</button>
+                </div>
+            </form>
         </div>
-
-        <div class="mb-3">
-            <label for="market_id" class="form-label">Select Market</label>
-            <select name="market_id" id="market_id" class="form-select" required>
-                <option value="">-- Select a Market --</option>
-                {% for market in markets %}
-                    <option value="{{ market.id }}">{{ market.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label for="days_ahead" class="form-label">Days Ahead (default is 7)</label>
-            <input type="number" name="days_ahead" id="days_ahead" class="form-control" value="7" min="1" required>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Predict Price</button>
-    </form>
+    </div>
 
     {% if result %}
-        <div class="mt-4">
-            <h2>Prediction Result</h2>
-            <p><strong>Product:</strong> {{ result.product_name }}</p>
-            <p><strong>Market:</strong> {{ result.market_name }}</p>
-            <p><strong>Prediction Date:</strong> {{ result.prediction_date }}</p>
-            <p><strong>Predicted Price:</strong> {{ result.predicted_price }} (in your currency)</p>
-            <p><small>Predicted {{ result.days_ahead }} days from the last recorded price.</small></p>
+        <div class="card mt-4">
+            <div class="card-body">
+                <h2>Prediction Result</h2>
+                <p><strong>Product:</strong> {{ result.product_name }}</p>
+                <p><strong>Market:</strong> {{ result.market_name }}</p>
+                <p><strong>Prediction Date:</strong> {{ result.prediction_date }}</p>
+                <p><strong>Predicted Price:</strong> {{ result.predicted_price }} KES</p>
+                <p><small>Predicted {{ result.days_ahead }} days from the last recorded price.</small></p>
+            </div>
         </div>
     {% endif %}
 </div>

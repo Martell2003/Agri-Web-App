@@ -1,0 +1,324 @@
+{% extends "base.html" %}
+
+{% block title %}Data Management - AgriPrice Tracker{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2 class="mb-0">
+                <i class="fas fa-database mr-2"></i>Data Management Dashboard
+            </h2>
+            <small class="text-muted">Manage your agricultural price data</small>
+        </div>
+    </div>
+
+    <!-- Status Cards Row -->
+    <div class="row mb-4">
+        <!-- Database Status Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Price Records</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="priceRecordsCount">Loading...</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-table fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Market Coverage Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Markets Covered</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="marketCount">Loading...</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-map-marker-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Tracked Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Commodities Tracked</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="productCount">Loading...</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-apple-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Last Scraped Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Last Data Update</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="lastUpdate">Loading...</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Row -->
+    <div class="row">
+        <!-- Scraping Tools Column -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-primary text-white">
+                    <h6 class="m-0 font-weight-bold">
+                        <i class="fas fa-cloud-download-alt mr-2"></i>Data Scraping Tools
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h5 class="h5 mb-3 text-gray-800">Quick Scrape</h5>
+                        <form id="quickScrapeForm" method="POST" action="{{ url_for('data.scrape') }}">
+                            <div class="form-group">
+                                <label for="quickMarketSelect">Market</label>
+                                <select class="form-control" id="quickMarketSelect" name="market_id">
+                                    <option value="">All Markets</option>
+                                    {% for market in markets %}
+                                    <option value="{{ market.id }}">{{ market.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">
+                                <i class="fas fa-play mr-2"></i>Run Scraper
+                            </button>
+                        </form>
+                    </div>
+                    <hr>
+                    <div>
+                        <h5 class="h5 mb-3 text-gray-800">Advanced Options</h5>
+                        <form id="advancedScrapeForm" method="POST" action="{{ url_for('data.scrape') }}">
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label for="advMarketSelect">Market</label>
+                                    <select class="form-control" id="advMarketSelect" name="market_id">
+                                        <option value="">All Markets</option>
+                                        {% for market in markets %}
+                                        <option value="{{ market.id }}">{{ market.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="advProductSelect">Commodity</label>
+                                    <select class="form-control" id="advProductSelect" name="commodity_id">
+                                        <option value="">All Commodities</option>
+                                        {% for product in products %}
+                                        <option value="{{ product.id }}">{{ product.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="scrapeDate">Date</label>
+                                <input type="date" class="form-control" id="scrapeDate" name="date">
+                            </div>
+                            <button type="submit" class="btn btn-info btn-block">
+                                <i class="fas fa-cogs mr-2"></i>Scrape with Filters
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Maintenance Column -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-warning text-white">
+                    <h6 class="m-0 font-weight-bold">
+                        <i class="fas fa-broom mr-2"></i>Data Maintenance
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h5 class="h5 mb-3 text-gray-800">Database Cleanup</h5>
+                        <form id="cleanDataForm" method="POST" action="{{ url_for('data.clean_data') }}">
+                            <div class="form-group">
+                                <label for="daysToKeep">Keep data for last (days):</label>
+                                <input type="number" class="form-control" id="daysToKeep" name="days" value="30" min="1">
+                            </div>
+                            <button type="submit" class="btn btn-warning btn-block">
+                                <i class="fas fa-trash-alt mr-2"></i>Clean Old Data
+                            </button>
+                        </form>
+                    </div>
+                    <hr>
+                    <div>
+                        <h5 class="h5 mb-3 text-gray-800">Data Export</h5>
+                        <div class="form-group">
+                            <label for="exportFormat">Export Format</label>
+                            <select class="form-control" id="exportFormat">
+                                <option>CSV</option>
+                                <option>Excel</option>
+                                <option>JSON</option>
+                            </select>
+                        </div>
+                        <button id="exportDataBtn" class="btn btn-success btn-block">
+                            <i class="fas fa-file-export mr-2"></i>Export Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity Row -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-info text-white">
+                    <h6 class="m-0 font-weight-bold">
+                        <i class="fas fa-history mr-2"></i>Recent Scraping Activity
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="activityTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Action</th>
+                                    <th>Records</th>
+                                    <th>Status</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+$(document).ready(function() {
+    // Initialize tooltips
+    $('[data-toggle="tooltip"]').tooltip();
+
+    // Load initial stats
+    updateDashboardStats();
+
+    // Set up periodic updates (every 60 seconds)
+    setInterval(updateDashboardStats, 60000);
+
+    // Form submission handlers
+    $('#quickScrapeForm, #advancedScrapeForm').submit(function() {
+        showLoadingAlert('Scraping in progress...', 'Please wait while we fetch the latest data.');
+    });
+
+    $('#cleanDataForm').submit(function(e) {
+        if (!confirm('This will permanently delete old data. Are you sure?')) {
+            e.preventDefault();
+        }
+    });
+
+    // Export button handler
+    $('#exportDataBtn').click(function() {
+        const format = $('#exportFormat').val();
+        showLoadingAlert('Preparing export...', `Generating ${format} file.`);
+        // In a real implementation, you would make an AJAX call to your export endpoint
+        setTimeout(() => {
+            alert('Export functionality would be implemented here in production');
+        }, 1500);
+    });
+
+    // Market change handler for product filtering
+    $('#advMarketSelect').change(function() {
+        const marketId = $(this).val();
+        if (marketId) {
+            $.get('/api/market-products', { market_id: marketId }, function(data) {
+                const productSelect = $('#advProductSelect');
+                productSelect.empty();
+                productSelect.append('<option value="">All Commodities</option>');
+                data.forEach(function(product) {
+                    productSelect.append(`<option value="${product.id}">${product.name}</option>`);
+                });
+            });
+        }
+    });
+});
+
+function updateDashboardStats() {
+    $.get('/api/data-stats', function(data) {
+        $('#priceRecordsCount').text(data.price_records.toLocaleString());
+        $('#marketCount').text(data.market_count.toLocaleString());
+        $('#productCount').text(data.product_count.toLocaleString());
+        
+        if (data.last_update) {
+            const lastUpdate = new Date(data.last_update);
+            $('#lastUpdate').text(lastUpdate.toLocaleString());
+        } else {
+            $('#lastUpdate').text('Never');
+        }
+
+        updateActivityLog();
+    });
+}
+
+function updateActivityLog() {
+    $.get('/api/activity-log', function(data) {
+        const tableBody = $('#activityTable tbody');
+        tableBody.empty();
+        
+        data.forEach(function(activity) {
+            const statusClass = activity.status === 'success' ? 'badge-success' : 
+                               activity.status === 'failed' ? 'badge-danger' : 'badge-info';
+            
+            tableBody.append(`
+                <tr>
+                    <td>${new Date(activity.timestamp).toLocaleString()}</td>
+                    <td>${activity.action}</td>
+                    <td>${activity.records_affected || '-'}</td>
+                    <td><span class="badge ${statusClass}">${activity.status}</span></td>
+                    <td>${activity.details || ''}</td>
+                </tr>
+            `);
+        });
+    });
+}
+
+function showLoadingAlert(title, message) {
+    // You would implement a proper loading modal here
+    alert(`${title}\n${message}`);
+}
+</script>
+{% endblock %}

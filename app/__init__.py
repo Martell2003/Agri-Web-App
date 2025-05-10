@@ -42,7 +42,6 @@ def create_app():
     login_manager.login_view = 'auth.login'
     migrate.init_app(app, db)
 
-    # New Admin Implementation
     # Custom Admin Index View with Dashboard
     class CustomAdminIndexView(AdminIndexView):
         @expose('/')
@@ -117,7 +116,7 @@ def create_app():
     # Price Model View
     class PriceModelView(SecureModelView):
         column_list = ['id', 'product.name', 'market.name', 'price', 'timestamp']
-        form_columns = ['product', 'market', 'price', 'timestamp']
+        form_columns = ['product_id', 'market_id', 'price', 'timestamp']
         column_filters = ['price', 'timestamp']
         column_searchable_list = ['price']
         form_args = {
@@ -129,30 +128,30 @@ def create_app():
             form_class = super().scaffold_form()
             from app.models.product import Product
             from app.models.market import Market
-            form_class.product = SelectField('Product', coerce=int, validators=[validators.DataRequired()])
-            form_class.market = SelectField('Market', coerce=int, validators=[validators.DataRequired()])
+            form_class.product_id = SelectField('Product', coerce=int, validators=[validators.DataRequired()])
+            form_class.market_id = SelectField('Market', coerce=int, validators=[validators.DataRequired()])
             return form_class
 
         def create_form(self):
             form = super().create_form()
             from app.models.product import Product
             from app.models.market import Market
-            form.product.choices = [(p.id, p.name) for p in Product.query.order_by(Product.name).all()]
-            form.market.choices = [(m.id, m.name) for m in Market.query.order_by(Market.name).all()]
+            form.product_id.choices = [(p.id, p.name) for p in Product.query.order_by(Product.name).all()]
+            form.market_id.choices = [(m.id, m.name) for m in Market.query.order_by(Market.name).all()]
             return form
 
         def edit_form(self):
             form = super().edit_form()
             from app.models.product import Product
             from app.models.market import Market
-            form.product.choices = [(p.id, p.name) for p in Product.query.order_by(Product.name).all()]
-            form.market.choices = [(m.id, m.name) for m in Market.query.order_by(Market.name).all()]
+            form.product_id.choices = [(p.id, p.name) for p in Product.query.order_by(Product.name).all()]
+            form.market_id.choices = [(m.id, m.name) for m in Market.query.order_by(Market.name).all()]
             return form
 
     # Market Model View
     class MarketModelView(SecureModelView):
         column_list = ['id', 'name', 'region.name', 'latitude', 'longitude']
-        form_columns = ['name', 'region', 'latitude', 'longitude']
+        form_columns = ['name', 'region_id', 'latitude', 'longitude']
         column_filters = ['name']
         form_args = {
             'name': {'validators': [validators.DataRequired()]},
@@ -163,19 +162,19 @@ def create_app():
         def scaffold_form(self):
             form_class = super().scaffold_form()
             from app.models.region import Region
-            form_class.region = SelectField('Region', coerce=int, validators=[validators.DataRequired()])
+            form_class.region_id = SelectField('Region', coerce=int, validators=[validators.DataRequired()])
             return form_class
 
         def create_form(self):
             form = super().create_form()
             from app.models.region import Region
-            form.region.choices = [(r.id, r.name) for r in Region.query.order_by(Region.name).all()]
+            form.region_id.choices = [(r.id, r.name) for r in Region.query.order_by(Region.name).all()]
             return form
 
         def edit_form(self):
             form = super().edit_form()
             from app.models.region import Region
-            form.region.choices = [(r.id, r.name) for r in Region.query.order_by(Region.name).all()]
+            form.region_id.choices = [(r.id, r.name) for r in Region.query.order_by(Region.name).all()]
             return form
 
     # CSV Upload View

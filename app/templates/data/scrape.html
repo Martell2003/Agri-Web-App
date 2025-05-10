@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}Data Scraping - AgriPrice Tracker{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="mb-4">
+                <i class="fas fa-cloud-download-alt mr-2"></i>Data Scraping
+            </h2>
+            
+            <!-- Scraping Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-sync-alt mr-2"></i>Scrape New Data
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="scrapeForm" method="POST" action="{{ url_for('data.scrape') }}">
+                        <div class="form-row">
+                            <!-- Market Selection -->
+                            <div class="form-group col-md-4">
+                                <label for="marketSelect">Market:</label>
+                                <select id="marketSelect" name="market_id" class="form-control select2">
+                                    <option value="">All Markets</option>
+                                    {% for market in markets %}
+                                    <option value="{{ market.id }}">{{ market.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <!-- Product Selection -->
+                            <div class="form-group col-md-4">
+                                <label for="productSelect">Commodity:</label>
+                                <select id="productSelect" name="commodity_id" class="form-control select2">
+                                    <option value="">All Commodities</option>
+                                    {% for product in products %}
+                                    <option value="{{ product.id }}">{{ product.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <!-- Date Selection -->
+                            <div class="form-group col-md-4">
+                                <label for="dateInput">Date:</label>
+                                <input type="date" id="dateInput" name="date" class="form-control">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary" id="scrapeButton">
+                                <i class="fas fa-play mr-2"></i>Run Scraper
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary ml-2" id="scrapeAllButton">
+                                <i class="fas fa-sync mr-2"></i>Scrape All Data
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Status Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle mr-2"></i>Scraping Status
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="scrapingStatus">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Last Scraped:</span>
+                            <span id="lastScraped">Loading...</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Total Records:</span>
+                            <span id="totalRecords">Loading...</span>
+                        </div>
+                        <div class="progress mt-3" style="height: 20px;">
+                            <div id="scrapeProgress" class="progress-bar progress-bar-striped" 
+                                 role="progressbar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Data Card -->
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-table mr-2"></i>Recently Scraped Data
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover" id="recentDataTable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Market</th>
+                                    <th>Commodity</th>
+                                    <th>Wholesale Price</th>
+                                    <th>Retail Price</th>
+                                    <th>Unit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+$(document).ready(function() {
+    // Initialize select2 for better dropdowns
+    $('.select2').select2({
+        theme: 'bootstrap4'
+    });
+    
+    // Load initial status
+    updateScrapingStatus();
+    
+    // Set up periodic status updates (every 30 seconds)
+    setInterval(updateScrapingStatus, 30000);
+    
+    // Scrape All button handler
+    $('#scrapeAllButton').click(function() {
+        if (confirm('This will scrape all available data. It may take several minutes. Continue?')) {
+            $('#marketSelect').val('').trigger('change');
+            $('#productSelect').val('').trigger('change');
+            $('#dateInput').val('');
+            $('#scrapeForm').submit();
+        }
+    });
+    
+    // Form submission handler
+    $('#scrapeForm').submit(function(e) {
+        $('#scrapeButton').prop('disabled', true);
+        $('#scrapeButton').html('<i class="fas fa-spinner fa-spin mr-2"></i>Scraping...');
+    });
+    
+    // Market change handler to update products
+    $('#marketSelect').change(function() {
+        const marketId = $(this).val();
+        if (marketId) {
+            $.get('/api/market-products', { market_id: marketId }, function(data) {
+                const productSelect = $('#productSelect');
+                productSelect.empty();
+                productSelect.append('<option value="">All Commodities</option>');
+                data.forEach(function(product) {
+                    productSelect.append(`<option value="${product.id}">${product.name}</option>`);
+                });
+            });
+        }
+    });
+});
+
+function updateScrapingStatus() {
+    $.get('/api/scrape-status', function(data) {
+        if (data.last_scraped) {
+            const lastScraped = new Date(data.last_scraped);
+            $('#lastScraped').text(lastScraped.toLocaleString());
+        } else {
+            $('#lastScraped').text('Never');
+        }
+        
+        $('#totalRecords').text(data.record_count.toLocaleString());
+        
+        // Update recent data table
+        updateRecentData();
+    });
+}
+
+function updateRecentData() {
+    $.get('/api/recent-prices', function(data) {
+        const tableBody = $('#recentDataTable tbody');
+        tableBody.empty();
+        
+        data.forEach(function(item) {
+            tableBody.append(`
+                <tr>
+                    <td>${new Date(item.date).toLocaleDateString()}</td>
+                    <td>${item.market_name}</td>
+                    <td>${item.product_name}</td>
+                    <td>${item.wholesale_price ? 'KSh ' + item.wholesale_price.toFixed(2) : '-'}</td>
+                    <td>${item.retail_price ? 'KSh ' + item.retail_price.toFixed(2) : '-'}</td>
+                    <td>${item.unit}</td>
+                </tr>
+            `);
+        });
+    });
+}
+</script>
+{% endblock %}

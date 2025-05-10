@@ -267,4 +267,25 @@ body {
   h1, .card-title {
     color: #1e3a8a;
   }
-
+  .sidebar {
+    min-height: 100vh;
+    background-color: #343a40;
+    padding-top: 20px;
+}
+.sidebar a {
+    color: #adb5bd;
+    padding: 10px 20px;
+    display: block;
+    text-decoration: none;
+}
+.sidebar a:hover {
+    color: #ffffff;
+    background-color: #495057;
+}
+.sidebar a.active {
+    color: #ffffff;
+    background-color: #007bff;
+}
+.alert-container {
+    margin-bottom: 20px;
+}

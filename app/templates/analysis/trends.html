@@ -3,14 +3,13 @@
 
 {% block extra_styles %}
 <style>
-     body {
+    body {
         background-image: url("../static/img/agric.jpg");
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
         background-color: #e0f7fa;
     }
-
     .trends-container {
         padding: 2rem;
         background-color: rgba(255, 255, 255, 0.85);
@@ -18,7 +17,6 @@
         box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.075);
         margin-top: 2rem;
     }
-
     .trends-container h1 {
         color: #2e7d32;
         text-align: center;
@@ -28,37 +26,31 @@
         display: inline-block;
         width: 100%;
     }
-
     .accordion-button:not(.collapsed) {
         color: #0d6efd;
         background-color: #e7f2fe;
     }
-
     .accordion-body {
         background-color: rgba(224, 247, 250, 0.7);
         border-radius: 0 0 10px 10px;
         padding: 1.5rem;
     }
-
     .form-label {
         font-weight: bold;
         color: #333;
         margin-bottom: 0.3rem;
     }
-
     .form-select,
     .form-control {
         border-radius: 6px;
         padding: 0.7rem;
         border: 1px solid #ccc;
     }
-
     .form-select:focus,
     .form-control:focus {
         border-color: #007bff;
         box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
     }
-
     .btn-primary {
         background-color: #007bff;
         border-color: #007bff;
@@ -67,12 +59,10 @@
         border-radius: 6px;
         transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
     }
-
     .btn-primary:hover {
         background-color: #0056b3;
         border-color: #0056b3;
     }
-
     .btn-secondary {
         background-color: #6c757d;
         border-color: #6c757d;
@@ -82,58 +72,48 @@
         transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
         text-decoration: none !important;
     }
-
     .btn-secondary:hover {
         background-color: #545b62;
         border-color: #545b62;
     }
-
     .nav-pills .nav-link {
         background-color: #f8f9fa;
         color: #495057;
         border-radius: 6px;
         margin-right: 0.5rem;
     }
-
     .nav-pills .nav-link.active {
         background-color: #28a745;
         color: #fff;
     }
-
     .card {
         border: none;
         border-radius: 10px;
         box-shadow: 0 0.15rem 0.3rem rgba(0, 0, 0, 0.05);
         background-color: rgba(255, 255, 255, 0.9);
     }
-
     .card-body {
         padding: 1.5rem;
     }
-
     .card-title {
         color: #2e7d32;
         margin-bottom: 1rem;
     }
-
     .text-muted {
         opacity: 0.7;
     }
-
     .table-container {
         margin-bottom: 1.5rem;
         border: 1px solid #dee2e6;
         border-radius: 8px;
         overflow: hidden;
     }
-
     .custom-table {
         width: 100%;
         margin-bottom: 0;
         color: #212529;
         border-collapse: collapse;
     }
-
     .custom-table th,
     .custom-table td {
         padding: 0.75rem;
@@ -141,37 +121,30 @@
         border-top: 1px solid #dee2e6;
         text-align: left;
     }
-
     .custom-table thead th {
         vertical-align: bottom;
         border-bottom: 2px solid #dee2e6;
         background-color: #f8f9fa;
         font-weight: bold;
     }
-
     .custom-table tbody tr:nth-of-type(odd) {
         background-color: rgba(0, 0, 0, 0.05);
     }
-
     .sortable {
         cursor: pointer;
     }
-
     .sort-icon {
         margin-left: 0.5rem;
         font-size: 0.8rem;
         opacity: 0.6;
     }
-
     .sortable.asc .sort-icon {
         opacity: 1;
     }
-
     .sortable.desc .sort-icon {
         opacity: 1;
         transform: rotate(180deg);
     }
-
     #searchInputTable {
         margin-bottom: 1rem;
         padding: 0.5rem;
@@ -180,14 +153,11 @@
         width: 100%;
         box-sizing: border-box;
     }
-
-    /* Pagination styles */
     .pagination {
         display: flex;
         justify-content: center;
         margin-top: 1rem;
     }
-
     .pagination a,
     .pagination span {
         color: #007bff;
@@ -197,22 +167,19 @@
         border-radius: 4px;
         text-decoration: none;
     }
-
     .pagination a:hover {
         background-color: #f8f9fa;
     }
-
     .pagination .active {
         background-color: #007bff;
         color: white;
         border-color: #007bff;
     }
-
     .pagination .disabled {
         color: #6c757d;
         pointer-events: none;
         cursor: default;
-    }   
+    }
 </style>
 {% endblock %}
 
@@ -286,12 +253,12 @@
             <div class="card shadow-sm mb-4">
                 <div class="card-body">
                     <h5 class="card-title">Price Over Time</h5>
-                    {% if graphJSON %}
+                    {% if graph_json %}
                         <div id="priceTrendPlot" style="width:100%;height:500px;"></div>
+                        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
                         <script>
                             document.addEventListener('DOMContentLoaded', function() {
-                                var graphJSON = JSON.parse('{{ graphJSON|tojson|safe }}');
-                                renderPlotlyChart('priceTrendPlot', graphJSON);
+                                Plotly.newPlot('priceTrendPlot', {{ graph_json|safe }});
                             });
                         </script>
                     {% else %}
@@ -325,7 +292,7 @@
                                             <td>{{ region_name }}</td>
                                             <td>{{ market_name }}</td>
                                             <td>{{ price.price }}</td>
-                                            <td>{{ price.timestamp }}</td>
+                                            <td>{{ price.timestamp.strftime('%Y-%m-%d') }}</td>
                                         </tr>
                                     {% endfor %}
                                 {% else %}
@@ -349,7 +316,9 @@
         </div>
     </div>
 </div>
-<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+{% endblock %}
+
+{% block extra_scripts %}
 <script src="{{ url_for('static', filename='js/trends.js') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
