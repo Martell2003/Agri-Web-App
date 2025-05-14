@@ -1,12 +1,14 @@
 from flask import Blueprint, render_template, flash, redirect, url_for, request, jsonify
 from flask_login import login_required, current_user
+import requests
 from app import db
 from app.models import Product, Market, Price, Region
-from app.data.scraper import KenyanAgriculturalPriceScraper
 from app.data.processor import DataProcessor
 from app.analysis.stats import calculate_average_prices
 import logging
 from datetime import datetime, timedelta
+from app.data.scraper import AMISKenyaScraper
+from app.data.selenium_scraper import AMISSeleniumScraper
 
 data_bp = Blueprint('data', __name__)
 logger = logging.getLogger(__name__)
@@ -28,7 +30,7 @@ def scrape():
         date = request.form.get('date')
         
         try:
-            scraper = KenyanAgriculturalPriceScraper()
+            scraper = AMISKenyaScraper()
             success_count, error_count = scraper.scrape_and_save_prices(
                 market_id=market_id,
                 commodity_id=commodity_id,
@@ -188,3 +190,20 @@ def activity_log():
         },
         # Add more sample or real activities
     ])
+
+# app/routes/data.py
+@data_bp.route('/test-scrape')
+def test_scrape():
+    scraper = AMISKenyaScraper()
+    test_data = scraper._scrape_price_table(requests.get("https://amis.co.ke/site/market").text)
+    return jsonify(test_data[:3])  # Return first 3 entries for testing
+
+@data_bp.route('/scrape-selenium')
+@login_required
+def scrape_with_selenium():
+    scraper = AMISSeleniumScraper(headless=True)
+    if scraper.scrape():
+        flash("Successfully scraped prices using Selenium", "success")
+    else:
+        flash("Selenium scraping failed", "danger")
+    return redirect(url_for('data.management'))

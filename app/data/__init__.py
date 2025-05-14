@@ -1,2 +1,5 @@
+from .scraper import AMISKenyaScraper
 from .processor import DataProcessor
-__all__ = ['DataProcessor']
+from .selenium_scraper import AMISSeleniumScraper
+
+__all__ = ['AMISKenyaScraper',  'DataProcessor', 'AMISSeleniumScraper']
